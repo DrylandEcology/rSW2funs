@@ -14,7 +14,9 @@ Depends:
     R (>= 3.5.0),
     rSOILWAT2
 Imports:
-    rSW2utils
+    rSW2utils,
+    Rcpp (>= 1.0.5),
+    methods
 Suggests:
     testthat,
     spelling,
@@ -22,6 +24,7 @@ Suggests:
     covr
 LinkingTo:
     Rcpp
+NeedsCompilation: yes
 License: GPL-3
 URL: https://github.com/DrylandEcology/rSW2funs
 BugReports: https://github.com/DrylandEcology/rSW2funs/issues

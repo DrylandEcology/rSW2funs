@@ -26,13 +26,12 @@ rSW2_glovars <- new.env()
 
 
 ##------ Import from other packages
-#' @import rSW2utils
 #' @import rSOILWAT2
-## Package uses S3/S4 classes - they are defined in package:methods
+# Need methods to interact with rSOILWAT2's S4 output objects
 #' @import methods
 NULL
 
 
 ##------ Support Rcpp
-#' @importFrom Rcpp sourceCpp evalCpp
+#' @importFrom Rcpp evalCpp
 NULL
