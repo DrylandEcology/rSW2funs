@@ -85,9 +85,14 @@ test_data <- list(
 test_that("germination_wait_times", {
 
   for (k in seq_along(test_data))
-    with(test_data[[k]], expect_equal(
-      as.integer(germination_wait_times(ttg, dfc)), ref,
-      info = paste("Test dataset =", shQuote(names(test_data)[k]))))
+    with(
+      test_data[[k]],
+      expect_equal(
+        as.integer(GISSM_germination_wait_times(ttg, dfc)),
+        ref,
+        info = paste("Test dataset =", shQuote(names(test_data)[k]))
+      )
+    )
 
   if (FALSE) {
     for (k in seq_along(test_data)[-1]) {
@@ -95,8 +100,12 @@ test_that("germination_wait_times", {
       print(paste("ttg =", paste(test_data[[k]][["ttg"]], collapse = ", ")))
       print(paste("dfc =", paste(test_data[[k]][["dfc"]], collapse = ", ")))
       print(paste("ref =", paste(test_data[[k]][["ref"]], collapse = ", ")))
-      out <- as.integer(germination_wait_times(test_data[[k]][["ttg"]],
-        test_data[[k]][["dfc"]]))
+      out <- as.integer(
+        GISSM_germination_wait_times(
+          time_to_germinate = test_data[[k]][["ttg"]],
+          duration_fave_cond = test_data[[k]][["dfc"]]
+        )
+      )
       print(paste("out =", paste(out, collapse = ", ")))
       print("")
     }
@@ -104,10 +113,12 @@ test_that("germination_wait_times", {
 
   #--- Errors
   # time_to_germinate is not NA, but duration_fave_cond is NA
-  expect_error(germination_wait_times(1, NA))
+  expect_error(GISSM_germination_wait_times(1, NA))
+
   # germination takes longer than available favorable condition
-  expect_error(germination_wait_times(2, 1))
-  expect_error(germination_wait_times(c(3, NA, 1), c(2, NA, 1)))
+  expect_error(GISSM_germination_wait_times(2, 1))
+  expect_error(GISSM_germination_wait_times(c(3, NA, 1), c(2, NA, 1)))
+
   # arguments not of identical length
-  expect_error(germination_wait_times(rep(1, 10), 8:1))
+  expect_error(GISSM_germination_wait_times(rep(1, 10), 8:1))
 })
