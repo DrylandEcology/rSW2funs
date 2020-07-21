@@ -1,0 +1,31 @@
+Package: rSW2funs
+Title: Calculating new response variables from rSOILWAT2 simulations
+Version: 0.0.0.9000
+Authors@R: c(
+  person(
+    "Daniel", "Schlaepfer",
+    email = "danielrschlaepfer@gmail.com",
+    comment = c(ORCID = "0000-0001-9973-2065"),
+    role = c("aut", "cre")
+  ))
+Description: Collection of functions that calculate new variables
+    using rSOILWAT2 simulation output.
+Depends:
+    R (>= 3.5.0)
+Imports:
+    rSW2utils,
+    rSOILWAT2
+Suggests:
+    testthat,
+    spelling,
+    lintr,
+    covr
+LinkingTo:
+    Rcpp
+License: GPL-3
+URL: https://github.com/DrylandEcology/rSW2funs
+BugReports: https://github.com/DrylandEcology/rSW2funs/issues
+Encoding: UTF-8
+LazyData: true
+Language: en-US
+RoxygenNote: 7.1.0
