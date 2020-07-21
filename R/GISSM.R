@@ -4,7 +4,7 @@
 # regeneration responses of big sagebrush (Artemisia tridentata) to abiotic
 # conditions. Ecol Model, 286, 66-77.
 
-#' Function to convert soil depth to soil layer
+# Function to convert soil depth to soil layer
 SoilLayer_at_SoilDepth <- function(depth_cm, layers_depth) {
   pmax(
     1,
@@ -16,9 +16,9 @@ SoilLayer_at_SoilDepth <- function(depth_cm, layers_depth) {
 }
 
 
-#' Function to calculate for each day of the year, duration in days of
-#' upcoming favorable conditions accounting for consequences_unfavorable = 0
-#' (if conditions become unfavorable, then restart the count), =1 (resume)
+# Function to calculate for each day of the year, duration in days of
+# upcoming favorable conditions accounting for consequences_unfavorable = 0
+# (if conditions become unfavorable, then restart the count), =1 (resume)
 calc_DurationFavorableConds <- function(RYyear, consequences_unfavorable,
   Germination_WhileFavorable, RYyear_ForEachUsedDay) {
 
@@ -70,13 +70,13 @@ calc_DurationFavorableConds <- function(RYyear, consequences_unfavorable,
   out
 }
 
-#' Based on the \var{NLR} model (equation 5) in Hardegree (2006) and modified
-#' by Schlaepfer et al. (2014) by making time to germinate dependent on
-#' mean January temperature and soil water potential
-#'
-#' @references Hardegree SP (2006) Predicting Germination Response to
-#'   Temperature. I. Cardinal-temperature Models and Subpopulation-specific
-#'   Regression. Annals of Botany, 97, 1115-1125.
+# Based on the \var{NLR} model (equation 5) in Hardegree (2006) and modified
+# by Schlaepfer et al. (2014) by making time to germinate dependent on
+# mean January temperature and soil water potential
+#
+# @references Hardegree SP (2006) Predicting Germination Response to
+#   Temperature. I. Cardinal-temperature Models and Subpopulation-specific
+#   Regression. Annals of Botany, 97, 1115-1125.
 get_modifiedHardegree2006NLR <- function(RYdoy, Estimate_TimeToGerminate,
   TmeanJan, a, b, c, d, k1_meanJanTemp, k2_meanJanTempXIncubationTemp,
   k3_IncubationSWP, Tgerm.year, SWPgerm.year, durations, rec.delta = 1,
@@ -132,12 +132,12 @@ get_modifiedHardegree2006NLR <- function(RYdoy, Estimate_TimeToGerminate,
   if (out <= durations[RYdoy] && RYdoy + out <= 365) out else NA
 }
 
-#' Function to estimate time to germinate for each day of a given year and
-#' conditions (temperature, top soil \var{SWP})
-#'
-#' @param seed A seed set, \code{NULL}, or \code{NA}. \code{NA} will not affect
-#'  the state of the \var{RNG}; \code{NULL} will re-initialize the \var{RNG};
-#'  and all other values are passed to \code{\link{set.seed}}.
+# Function to estimate time to germinate for each day of a given year and
+# conditions (temperature, top soil \var{SWP})
+#
+# @param seed A seed set, \code{NULL}, or \code{NA}. \code{NA} will not affect
+#  the state of the \var{RNG}; \code{NULL} will re-initialize the \var{RNG};
+#  and all other values are passed to \code{\link{set.seed}}.
 calc_TimeToGerminate <- function(RYyear, Germination_WhileFavorable,
   LengthDays_FavorableConditions, RYyear_ForEachUsedDay, soilTmeanSnow,
   swp_shallow, TmeanJan, params, seed = NA) {
@@ -221,7 +221,7 @@ do.vector <- function(kill.vector, max_time_to_kill) {
   mortality
 }
 
-#' Function to calculate mortality under conditions and checks survival limit
+# Function to calculate mortality under conditions and checks survival limit
 calc_SeedlingMortality <- function(kill_conds,
   max_time_to_kill) {
 
@@ -234,8 +234,8 @@ calc_SeedlingMortality <- function(kill_conds,
 }
 
 
-#' Function to calculate favorable conditions for seedling growth for each day
-#' of a given year
+# Function to calculate favorable conditions for seedling growth for each day
+# of a given year
 check_SuitableGrowthThisYear <- function(
   favorable_conditions, consequences_unfavorable) {
 
@@ -269,9 +269,9 @@ check_SuitableGrowthThisYear <- function(
 }
 
 
-#' Function to calculate rooting depth at given age
-#' Units: [age] = days, [P0, K, r] = mm
-#' @return A numeric vector of rooting depth in units of centimeters.
+# Function to calculate rooting depth at given age
+# Units: [age] = days, [P0, K, r] = mm
+# @return A numeric vector of rooting depth in units of centimeters.
 SeedlingRootingDepth <- function(age, P0, K, r) {
   depth <- K * P0 * exp(r * age) / (K + P0 * (exp(r * age) - 1))
 
