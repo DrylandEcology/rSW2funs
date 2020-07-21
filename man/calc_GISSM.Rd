@@ -10,15 +10,134 @@ calc_GISSM(
   params = parameters_GISSM_bigsagebrush(),
   site_latitude = NULL,
   has_soil_temperature = NULL,
+  years = NULL,
   simTime1 = NULL,
   simTime2 = NULL,
-  plot = FALSE,
+  debug_output = 0L,
   path = NULL,
   filename_tag = "GISSM"
 )
+}
+\arguments{
+\item{x}{A named list or an object of
+\pkg{rSOILWAT2} class \code{\linkS4class{swOutput}} with daily output.
+If \code{x} is a named list, then it must contain appropriate content for
+\var{SWP_MPa}, \var{Snowpack_SWE_mm}, \var{air_Tmin_C}, \var{air_Tmax_C},
+\var{air_Tmean_C}, \var{shallowsoil_Tmin_C}, \var{shallowsoil_Tmean_C},
+\var{shallowsoil_Tmax_C}. See examples.}
+
+\item{soillayer_depths_cm}{A numeric vector. The lower bounds of simulated
+soil layers.}
+
+\item{params}{A named list. See \code{\link{parameters_GISSM_bigsagebrush}}.}
+
+\item{site_latitude}{A numeric value.
+Required if \code{simTime2} is \code{NULL}.}
+
+\item{has_soil_temperature}{A logical value or \code{NULL}. Optional
+information whether or not object \code{x} contains (good)
+soil temperature values.}
+
+\item{years}{A numeric vector or \code{NULL}. The sequence of simulated
+calendar years; required only
+if \code{x} is not of class \code{\linkS4class{swOutput}} and
+if \code{simTime1} and/or \code{simTime1} is \code{NULL}.}
+
+\item{simTime1}{A named list or \code{NULL}.
+See \code{\link[rSOILWAT2]{setup_time_simulation_run}}.}
+
+\item{simTime2}{A named list or \code{NULL}.
+See \code{\link[rSOILWAT2]{simTiming_ForEachUsedTimeUnit}}.}
+
+\item{debug_output}{An integer value. Level of additional outputs.
+If \code{0}, then standard variables are returned.
+If \code{1} or \code{2}, then additional elements are included in the
+returned item; see \var{Value}.
+If \code{2}, then additional output for debugging purposes is
+written to a \var{csv} spreadsheet and a \var{pdf} figure is created.}
+
+\item{path}{A character string. The path to the directory where additional
+output should be written to disk.}
+
+\item{filename_tag}{A character string. File name without extension used
+for writing additional output.}
+}
+\value{
+A named list with one element: \describe{
+    \item{outcome}{A \var{data.frame} tabulating success/failure
+    for \var{Germination_Emergence} and for \var{SeedlingSurvival_1stSeason}
+    for each regeneration year.}
+  }
+
+  If \code{debug_output} is \code{2}, then seven additional elements
+  are provided for debugging purposes: \describe{
+    \item{successes_days}{Number of days per year with positive outcomes.}
+    \item{success_mostfrequent_doy}{
+      Seasonal timing of most frequent positive outcomes.
+    }
+    \item{time_to_germinate_days}{Time to germinate.}
+    \item{nogermination_days}{Days without germination.}
+    \item{nogermination_periods_days}{Periods without germination.}
+    \item{noseedlings_periods_days}{Periods without seedling recruitment.}
+    \item{mortality_causes}{Causes of seedling mortality.}
+  }
 }
 \description{
 GISSM represents the frequency of years when big sagebrush seeds germinate
 and seedlings survive in undisturbed natural vegetation
 (Schlaepfer et al. 2014).
+}
+\examples{
+sw_in <- rSOILWAT2::sw_exampleData
+res <- rSOILWAT2::sw_exec(inputData = sw_in)
+
+# Example 1: use rSOILWAT2 output directly to run GISSM
+GISSM_r1 <- calc_GISSM(
+  x = res,
+  soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
+  site_latitude = rSOILWAT2::swSite_IntrinsicSiteParams(sw_in)[["Latitude"]],
+  has_soil_temperature =
+    rSOILWAT2::swSite_SoilTemperatureFlag(sw_in) &&
+    !rSOILWAT2::has_soilTemp_failed()
+)
+
+
+# Example 2: use list of daily values to run GISSM
+#   populate daily values from rSOILWAT2 output as here or from other model
+dt <- "Day"
+tmp_swp <- slot(slot(res, "SWPMATRIC"), dt)
+tmp_snow <- slot(slot(res, "SNOWPACK"), dt)
+tmp_airtemp <- slot(slot(res, "TEMP"), dt)
+tmp_soiltemp <- slot(slot(res, "SOILTEMP"), dt)
+
+GISSM_r2 <- calc_GISSM(
+  x = list(
+    SWP_MPa = -1 / 10 * tmp_swp[, -(1:2), drop = FALSE],
+    Snowpack_SWE_mm = 10 * tmp_snow[, "snowpackWaterEquivalent_cm"],
+    air_Tmin_C = tmp_airtemp[, "min_C"],
+    air_Tmean_C = tmp_airtemp[, "avg_C"],
+    air_Tmax_C = tmp_airtemp[, "max_C"],
+    # Using daily mean soil temperature in the absence of daily min/max
+    shallowsoil_Tmin_C = tmp_soiltemp[, "Lyr_1"],
+    shallowsoil_Tmean_C = tmp_soiltemp[, "Lyr_1"],
+    shallowsoil_Tmax_C = tmp_soiltemp[, "Lyr_1"]
+  ),
+  soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
+  site_latitude = rSOILWAT2::swSite_IntrinsicSiteParams(sw_in)[["Latitude"]],
+  years =
+    rSOILWAT2::swYears_StartYear(sw_in):rSOILWAT2::swYears_EndYear(sw_in)
+)
+
+all.equal(GISSM_r1, GISSM_r2)
+
+# Calculate the frequency of years when big sagebrush seeds germinate
+# and seedlings survive in undisturbed natural vegetation
+# (Schlaepfer et al. 2014)
+colMeans(GISSM_r1[["outcome"]][, -1])
+
+}
+\references{
+Schlaepfer, D.R., Lauenroth, W.K. & Bradford, J.B. (2014).
+  Modeling regeneration responses of big sagebrush (Artemisia tridentata)
+  to abiotic conditions. Ecol Model, 286, 66-77.
 }
