@@ -513,7 +513,7 @@ calc_GISSM <- function(
   #------ Prepare inputs
   req_vars <- c(
     "SWP_MPa", "Snowpack_SWE_mm",
-    "air_Tmin_C", "air_Tmax_C", "air_Tmean_C",
+    "air_Tmin_C", "air_Tmean_C", "air_Tmax_C",
     "shallowsoil_Tmin_C", "shallowsoil_Tmean_C", "shallowsoil_Tmax_C"
   )
 
@@ -683,8 +683,8 @@ calc_GISSM <- function(
       if (tmp) {
         switch(
           EXPR = v,
-          SWP_MPa = nrow(sim_vals[[v]]) == st1[["no.usedy"]],
-          length(sim_vals[[v]]) == st1[["no.usedy"]]
+          SWP_MPa = nrow(sim_vals[[v]]) >= st1[["no.usedy"]],
+          length(sim_vals[[v]]) >= st1[["no.usedy"]]
         )
       } else {
         tmp
