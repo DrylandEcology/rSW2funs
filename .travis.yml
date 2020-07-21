@@ -22,6 +22,24 @@ r_check_args: '--ignore-vignettes'
 
 cache: packages
 
+before_install:
+  # Download rSW2utils from github (as dependency of rSOILWAT2)
+  - git clone -b master --single-branch --recursive https://github.com/DrylandEcology/rSW2utils.git ../rSW2utils
+  # Download rSOILWAT2 from github (as dependency of rSW2funs)
+  - git clone -b master --single-branch --recursive https://github.com/DrylandEcology/rSOILWAT2.git ../rSOILWAT2
+
+install:
+  # Use `remotes` to detect/install/update package dependencies
+  - Rscript -e 'utils::install.packages("remotes", lib = Sys.getenv("R_LIBS_USER"))'
+  # Custom install/update dependencies of rSW2utils and rSOILWAT2
+  - Rscript -e 'remotes::update_packages(c("blob", "DBI", "RSQLite", "circular", "mvtnorm"), upgrade = TRUE, lib = Sys.getenv("R_LIBS_USER"))'
+  # Install rSW2utils from github (as dependency of rSOILWAT2)
+  - R CMD INSTALL --no-docs --no-help ../rSW2utils
+  # Install rSOILWAT2 from github (as dependency of rSW2funs)
+  - R CMD INSTALL --no-docs --no-help ../rSOILWAT2
+  # Install rSW2funs dependencies, but remove `Rmpi` etc.
+  - Rscript -e 'pkgs <- remotes::dev_package_deps(dependencies = TRUE); ids_not <- pkgs[, "package"] %in% c("rSW2utils", "rSOILWAT2"); update(pkgs[!ids_not, ], upgrade = TRUE, lib = Sys.getenv("R_LIBS_USER"))'
+
 after_success:
   # code coverage
   - Rscript -e 'if (requireNamespace("covr")) covr::codecov()'
