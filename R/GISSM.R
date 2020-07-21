@@ -290,6 +290,84 @@ get.DoyMostFrequentSuccesses <- function(doys, data) {
 }
 
 
+
+#' Default parameter values of GISSM for big sagebrush
+default_parameters_GISSM_bigsagebrush <- function() {
+  list(
+    Doy_SeedDispersalStart0 = 324.5569743,
+    SeedDispersalStart_DependencyOnMeanTempJanuary = 2.039915438,
+    GerminationPeriods_0ResetOr1Resume = 1,
+    Temp_ExperiencedUnderneathSnowcover = 3.406591694,
+    Temp_MaximumForGermination = 43.84200172,
+    Temp_MinimumForGermination = 3.620305876,
+    SWP_MinimumForGermination = -0.447054684,
+    SeedlingGrowth_0StopOr1Resume = 1,
+    SWE_MaximumForSeedlingGrowth = 0,
+    Days_SnowCover_MaximumForSeedlingSurvival = 31,
+    Temp_MinimumForSeedlingGrowth = -2.616505128,
+    Temp_MaximumForSeedlingGrowth = 34.46478864,
+    Temp_MinimumForSeedlingSurvival = -9.25483659,
+    Temp_MaximumForSeedlingSurvival = 34.46478864,
+    SWP_ChronicMaximumForSeedlingSurvival = -0.03333,
+    Days_ChronicMaximumForSeedlingSurvival = 56,
+    SWP_ChronicMinimumForSeedlingSurvival = -2.259034726,
+    Days_ChronicMinimumForSeedlingSurvival = 49,
+    SWP_AcuteMinimumForSeedlingSurvival = -3.278547773,
+    SoilDepth_RelevantToGermination = 3,
+    Seedling_SoilDepth.PO = 74,
+    Seedling_SoilDepth.K = 1765,
+    Seedling_SoilDepth.r = 0.189413231,
+    Hardegree_a = 0.649614337,
+    Hardegree_b = 13.7107755,
+    Hardegree_c = -116.2694843,
+    Hardegree_d = 0.365901519,
+    TimeToGerminate_k1_meanJanTemp = -0.395946153,
+    TimeToGerminate_k2_meanJanTempXIncubationTemp = 0.267351215,
+    TimeToGerminate_k3_IncubationSWP = -3.538845403
+  )
+}
+
+#' Parameter values of GISSM for big sagebrush
+#'
+#' @param ... Named GISSM parameters and their values.
+#' @return A list of default and adjusted parameter values for GISSM.
+#'
+#' @references Schlaepfer, D.R., Lauenroth, W.K. & Bradford, J.B. (2014).
+#'   Modeling regeneration responses of big sagebrush (Artemisia tridentata)
+#'   to abiotic conditions. Ecol Model, 286, 66-77.
+#'
+#' @examples
+#' # Default values
+#' x <- parameters_GISSM_bigsagebrush()
+#'
+#' # Fix \var{Doy_SeedDispersalStart0} to 325 and use default values otherwise
+#' x <- parameters_GISSM_bigsagebrush(Doy_SeedDispersalStart0 = 325)
+#'
+#' @export
+parameters_GISSM_bigsagebrush <- function(...) {
+  dots <- list(...)
+  nd <- names(dots)
+
+  x <- default_parameters_GISSM_bigsagebrush()
+  nx <- names(x)
+
+  used <- intersect(nd, nx)
+
+  for (k in used) {
+    x[[k]] <- dots[[k]]
+  }
+
+  badp <- setdiff(nd, nx)
+  if (length(badp)) {
+    warning(
+      "Arguments ", paste(shQuote(badp), collapse = ", "),
+      " are not GISSM parameters; they are ignored."
+    )
+  }
+
+  x
+}
+
 #' The germination and individual seedling survival model \var{GISSM}
 #'
 #' GISSM represents the frequency of years when big sagebrush seeds germinate
