@@ -13,17 +13,22 @@
 
 #------------------------------------
 #------ Jargon
+abiotic
 et
+MERCHANTABILITY
 
 #------------------------------------
 #------ Abbreviations
 al
+funs
+GISSM
 ORCID
 USGS
 
 #------------------------------------
 #------ Names
 appveyor
+Artemisia
 codecov
 github
 Lauenroth
@@ -38,4 +43,5 @@ SOILWAT
 STEPWAT
 testthat
 travis
+tridentata
 Wickham
