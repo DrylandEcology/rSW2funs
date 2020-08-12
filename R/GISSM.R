@@ -438,8 +438,10 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #'     }
 #'     \item{time_to_germinate_days}{Time to germinate.}
 #'     \item{nogermination_days}{Days without germination.}
-#'     \item{nogermination_periods_days}{Periods without germination.}
-#'     \item{noseedlings_periods_days}{Periods without seedling recruitment.}
+#'     \item{nogermination_periods_yrs}{Consecutive years without germination.}
+#'     \item{noseedlings_periods_yrs}{
+#'       Consecutive years without seedling recruitment.
+#'     }
 #'     \item{mortality_causes}{Causes of seedling mortality.}
 #'   }
 #'
@@ -1289,15 +1291,15 @@ calc_GISSM <- function(
     GISSM[["mortality_causes"]] <- SeedlingMortality_CausesByYear
 
     # Periods with no successes
-    tmp <- rle(GISSM[["outcome"]][, 1])
-    GISSM[["nogermination_periods_days"]] <- if (any(!tmp$values)) {
+    tmp <- rle(GISSM[["outcome"]][, "Germination_Emergence"])
+    GISSM[["nogermination_periods_yrs"]] <- if (any(!tmp$values)) {
       tmp$lengths[!tmp$values]
     } else {
       0
     }
 
-    tmp <- rle(GISSM[["outcome"]][, 2])
-    GISSM[["noseedlings_periods_days"]] <- if (any(!tmp$values)) {
+    tmp <- rle(GISSM[["outcome"]][, "SeedlingSurvival_1stSeason"])
+    GISSM[["noseedlings_periods_yrs"]] <- if (any(!tmp$values)) {
       tmp$lengths[!tmp$values]
     } else {
       0

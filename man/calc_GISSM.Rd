@@ -77,8 +77,10 @@ A named list with one element: \describe{
     }
     \item{time_to_germinate_days}{Time to germinate.}
     \item{nogermination_days}{Days without germination.}
-    \item{nogermination_periods_days}{Periods without germination.}
-    \item{noseedlings_periods_days}{Periods without seedling recruitment.}
+    \item{nogermination_periods_yrs}{Consecutive years without germination.}
+    \item{noseedlings_periods_yrs}{
+      Consecutive years without seedling recruitment.
+    }
     \item{mortality_causes}{Causes of seedling mortality.}
   }
 }
