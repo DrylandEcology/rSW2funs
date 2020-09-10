@@ -31,4 +31,4 @@ BugReports: https://github.com/DrylandEcology/rSW2funs/issues
 Encoding: UTF-8
 LazyData: true
 Language: en-US
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
