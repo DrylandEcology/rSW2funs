@@ -618,7 +618,7 @@ calc_GISSM <- function(
       sim_vals[["SWP_MPa"]] <- -1 / 10 * slot(
         slot(x, rSW2_glovars[["swof"]]["sw_swp"]),
         "Day"
-      )[, -(1:2), drop = FALSE]
+      )[, - (1:2), drop = FALSE]
     }
 
     if (!exists("Snowpack_SWE_mm", where = sim_vals)) {
@@ -1082,7 +1082,7 @@ calc_GISSM <- function(
 
         tmp <- !thisSeedlingGrowth_AbsenceOfSnowCover[ids_season]
         if (any(tmp)) {
-          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueSnowCover"] <- sg_RYdoy + which(tmp)[1]
+          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueSnowCover"] <- sg_RYdoy + which(tmp)[1] #nolint
         }
 
         # Minimum temperature
@@ -1094,7 +1094,7 @@ calc_GISSM <- function(
 
         tmp <- !thisSeedlingGrowth_AtAboveTmin[ids_season]
         if (any(tmp)) {
-          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmin"] <- sg_RYdoy + which(tmp)[1]
+          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmin"] <- sg_RYdoy + which(tmp)[1] #nolint
         }
 
         # Maximum temperature
@@ -1106,7 +1106,7 @@ calc_GISSM <- function(
 
         tmp <- !thisSeedlingGrowth_AtBelowTmax[ids_season]
         if (any(tmp)) {
-          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmax"] <- sg_RYdoy + which(tmp)[1]
+          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmax"] <- sg_RYdoy + which(tmp)[1] #nolint
         }
 
         #--- Update days of growth or surviving
@@ -1127,17 +1127,17 @@ calc_GISSM <- function(
         #--- Book-keeping survival under above-ground conditions
         tmp <- thisYear_SeedlingMortality_UnderneathSnowCover[ids_season]
         if (any(tmp)) {
-          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.UnderneathSnowCover"] <- sg_RYdoy + which(tmp)[1] - 1
+          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.UnderneathSnowCover"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
         }
 
         tmp <- thisYear_SeedlingMortality_ByTmin[ids_season]
         if (any(tmp)) {
-          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmin"] <- sg_RYdoy + which(tmp)[1] - 1
+          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmin"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
         }
 
         tmp <- thisYear_SeedlingMortality_ByTmax[ids_season]
         if (any(tmp)) {
-          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmax"] <- sg_RYdoy + which(tmp)[1] - 1
+          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmax"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
         }
 
         #--- If not killed (yet) then grow and check survival below-ground
@@ -1155,7 +1155,9 @@ calc_GISSM <- function(
               r = params[["Seedling_SoilDepth.r"]]
             )
 
-            thisSeedling_thisYear_RootingDepth[thisSeedlingGrowing] <- thisSeedlingGrowing_RootingDepth
+            thisSeedling_thisYear_RootingDepth[thisSeedlingGrowing] <-
+              thisSeedlingGrowing_RootingDepth
+
             if (any(thisSeedlingLivingButNotGrowing, na.rm = TRUE)) {
               # for days when growth stopped then copy relevant soil depth
               stopg <- addDepths <- rle(thisSeedlingLivingButNotGrowing)
@@ -1164,7 +1166,8 @@ calc_GISSM <- function(
                 addDepths$values[p] <- if (
                   is.na(thisSeedling_thisYear_RootingDepth[RYDoys_stopg[p]])
                 ) {
-                  tmp <- thisSeedling_thisYear_RootingDepth[1 + RYDoys_stopg[p + 1]]
+                  tmp <-
+                    thisSeedling_thisYear_RootingDepth[1 + RYDoys_stopg[p + 1]]
 
                   if (is.na(tmp)) {
                     params[["Seedling_SoilDepth.K"]]
@@ -1186,7 +1189,7 @@ calc_GISSM <- function(
             }
 
           } else {
-            thisSeedling_thisYear_RootingDepth[thisSeedlingLivingButNotGrowing] <- params[["Seedling_SoilDepth.PO"]] / 10
+            thisSeedling_thisYear_RootingDepth[thisSeedlingLivingButNotGrowing] <- params[["Seedling_SoilDepth.PO"]] / 10 #nolint
           }
 
           thisSeedling_thisYear_RootingSoilLayers <- SoilLayer_at_SoilDepth(
@@ -1201,9 +1204,9 @@ calc_GISSM <- function(
               kill_conditions = thisYear_SeedlingMortality_ByChronicSWPMax
           )
 
-          tmp <- thisSeedling_thisYear_SeedlingMortality_ByChronicSWPMax[ids_season]
+          tmp <- thisSeedling_thisYear_SeedlingMortality_ByChronicSWPMax[ids_season] #nolint
           if (any(tmp)) {
-            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMax"] <- sg_RYdoy + which(tmp)[1] - 1
+            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMax"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
           }
 
           #--- Check survival under chronic SWPMin
@@ -1213,9 +1216,9 @@ calc_GISSM <- function(
               kill_conditions = thisYear_SeedlingMortality_ByChronicSWPMin
           )
 
-          tmp <- thisSeedling_thisYear_SeedlingMortality_ByChronicSWPMin[ids_season]
+          tmp <- thisSeedling_thisYear_SeedlingMortality_ByChronicSWPMin[ids_season] #nolint
           if (any(tmp)) {
-            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMin"] <- sg_RYdoy + which(tmp)[1] - 1
+            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMin"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
           }
 
           #--- Check survival under acute SWPMin
@@ -1225,9 +1228,9 @@ calc_GISSM <- function(
               kill_conditions = thisYear_SeedlingMortality_ByAcuteSWPMin
           )
 
-          tmp <- thisSeedling_thisYear_SeedlingMortality_ByAcuteSWPMin[ids_season]
+          tmp <- thisSeedling_thisYear_SeedlingMortality_ByAcuteSWPMin[ids_season] #nolint
           if (any(tmp)) {
-            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByAcuteSWPMin"] <- sg_RYdoy + which(tmp)[1] - 1
+            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByAcuteSWPMin"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
           }
         }
 
@@ -1278,7 +1281,7 @@ calc_GISSM <- function(
     by = st_RY["year_ForEachUsedRYDay"],
     FUN = sum
   )
-  res1_yr <- res1_yr_v0[index_RYuseyr,]
+  res1_yr <- res1_yr_v0[index_RYuseyr, ]
 
   # Years with successful germination and seedling survival
   GISSM[["outcome"]] <- data.frame(
@@ -1306,7 +1309,14 @@ calc_GISSM <- function(
     }
 
     # Days of year (in normal count) of most frequent successes among years
-    # toDoy <- function(x) sort(ifelse((temp <- x+Doy_SeedDispersalStart-1) > 365, temp-365, temp)) #convert to normal doys
+    if (FALSE) {
+      # convert to normal doys
+      toDoy <- function(x) {
+        tmp <- x + Doy_SeedDispersalStart - 1
+        sort(ifelse(tmp > 365, tmp - 365, tmp))
+      }
+    }
+
     res1_dy <- stats::aggregate(
       x = dat_gissm1,
       by = st_RY["doy_ForEachUsedRYDay"],

@@ -27,7 +27,7 @@ test_that("GISSM", {
 
   GISSM_r2 <- calc_GISSM(
     x = list(
-      SWP_MPa = -1 / 10 * tmp_swp[, -(1:2), drop = FALSE],
+      SWP_MPa = -1 / 10 * tmp_swp[, - (1:2), drop = FALSE],
       Snowpack_SWE_mm = 10 * tmp_snow[, "snowpackWaterEquivalent_cm"],
       air_Tmin_C = tmp_airtemp[, "min_C"],
       air_Tmean_C = tmp_airtemp[, "avg_C"],
