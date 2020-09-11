@@ -1,6 +1,7 @@
 #--- Code style
 
 #nolint start
+
 # Problem: `R CMD check` doesn't allow hidden files
 # including the lintr settings; thus, we exclude `.lintr` via `.Rbuildignore`.
 # Consequently, we wouldn't be able to lint with our settings
@@ -14,6 +15,7 @@
 #   - `Sys.setenv(NOT_CRAN = "true"); source("tests/lint_code.R")`
 #   - `devtools::check(env_vars = c(NOT_CRAN = "true"))`
 #   - `R CMD build . && NOT_CRAN="true" R CMD check *.tar.gz`
+
 #nolint end
 
 if (
@@ -63,16 +65,13 @@ if (
 
   if (is_package_source_path(pkg_path)) {
 
-    # List files that shouldn't be linted
-    files_not_tolint <- file.path("R", "RcppExports.R")
-
-    # `lintr::expect_lint_free` and `lintr::lint_package` lint R code
-    # only in "R", "tests", "inst"
-    paths <- file.path(
-      pkg_path,
-      c("data-raw", "doc", "demo", "R", "tests", "inst")
+    #--- List files that shouldn't be linted
+    files_not_tolint <- file.path(
+      "R",
+      "RcppExports.R"
     )
 
+    #--- List of linters to apply to package code
     linters_config <- lintr::with_defaults(
       #------ DEFAULT LINTERS
       assignment_linter = lintr::assignment_linter,
@@ -120,16 +119,79 @@ if (
       unneeded_concatenation_linter = lintr::unneeded_concatenation_linter
     )
 
-    lints <- lintr::lint_dir(
-      path = normalizePath(paths[dir.exists(paths)]),
-      exclusions = list(files_not_tolint),
+
+    #--- Lint package code
+    # `lintr::expect_lint_free` and `lintr::lint_package` lint R code
+    # only in "R", "tests", "inst"
+    paths <- file.path(
+      pkg_path,
+      c("data-raw", "demo", "R", "tests", "inst")
+    )
+
+    # Exclude vignette code from this step here which may be
+    # located at "inst/doc" (see below)
+    vignette_files <- list.files(
+      path = file.path(pkg_path, "inst", "doc"),
+      pattern = "\\.[Rr]$",
+      recursive = FALSE,
+      full.names = FALSE
+    )
+
+    # Prepare exclusions
+    # i.e., a named list of file paths relative to `path` argument and with
+    # `Inf` as values (see code of `lintr::lint_dir`; as of `lintr` v2.0.1)
+    files_to_exclude <- c(
+      if (length(files_not_tolint) > 0) {
+        file.path(pkg_path, files_not_tolint)
+      },
+      if (length(vignette_files) > 0) {
+        file.path(pkg_path, "inst", "doc", vignette_files)
+      }
+    )
+
+    excluded_files <- as.list(rep(Inf, length(files_to_exclude)))
+    names(excluded_files) <- files_to_exclude
+
+    lints1 <- lintr::lint_dir(
+      path = paths[dir.exists(paths)],
+      exclusions = excluded_files,
       linters = linters_config,
       parse_settings = FALSE,
       relative_path = FALSE # TRUE assumes that argument path is of length 1
     )
 
-    if (length(lints) > 0) {
-      print(lints)
+
+    #--- Lint code from vignettes
+    # (extracted by building the vignette(s) from vignette.Rmd -
+    # an automatic process which adds an extra trailing blank line)
+    linters_config[["trailing_blank_lines_linter"]] <- NULL
+
+    # Locate vignette code
+    # During interactive development located at pkg_path/doc
+    path_vignette_code <- file.path(pkg_path, "doc")
+
+    if (!dir.exists(path_vignette_code)) {
+      # During build/check located at pkg_path/inst/doc/
+      path_vignette_code <- file.path(pkg_path, "inst", "doc")
+    }
+
+
+    if (dir.exists(path_vignette_code)) {
+      lints2 <- lintr::lint_dir(
+        path = path_vignette_code,
+        linters = linters_config,
+        parse_settings = FALSE,
+        relative_path = FALSE # TRUE assumes that argument path is of length 1
+      )
+
+    } else {
+      lints2 <- NULL
+    }
+
+    has_lints <- c(length(lints1) > 0, length(lints2) > 0)
+    if (any(has_lints)) {
+      if (has_lints[1]) print(lints1)
+      if (has_lints[2]) print(lints2)
       stop("Not lint free.")
     }
 
