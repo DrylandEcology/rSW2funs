@@ -22,6 +22,8 @@ Suggests:
     spelling,
     lintr,
     covr
+Remotes:
+    github::DrylandEcology/rSW2utils
 LinkingTo:
     Rcpp
 NeedsCompilation: yes
