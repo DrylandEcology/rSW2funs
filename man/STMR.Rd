@@ -29,8 +29,11 @@ Soil moisture regime categories including qualifiers
 }
 
 \examples{
- vignette("SoilMoistureRegimes_SoilTemperatureRegimes",
-   package = "rSOILWAT2")
+vignette(
+  "SoilMoistureRegimes_SoilTemperatureRegimes",
+  package = "rSOILWAT2"
+)
+
 }
 \references{
 Soil Survey Staff. 2014. Keys to soil taxonomy, 12th ed., USDA

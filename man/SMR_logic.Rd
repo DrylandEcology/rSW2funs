@@ -2,7 +2,7 @@
 % Please edit documentation in R/SoilMoistureTemperatureRegimes.R
 \name{SMR_logic}
 \alias{SMR_logic}
-\title{Soil moisture regime: Soil Survey Staff 2014 (Key to Soil Taxonomy): p.28-31}
+\title{\var{NRCS} soil moisture regimes}
 \usage{
 SMR_logic(
   ACS_COND1,
@@ -28,5 +28,11 @@ SMR_logic(
 )
 }
 \description{
-Soil moisture regime: Soil Survey Staff 2014 (Key to Soil Taxonomy): p.28-31
+Soil moisture regimes are determined based on
+Soil Survey Staff 2014 (pages 28-31, Key to Soil Taxonomy).
 }
+\references{
+Soil Survey Staff (2014). Keys to soil taxonomy,
+  12th ed. USDA Natural Resources Conservation Service, Washington, DC.
+}
+\keyword{internal}

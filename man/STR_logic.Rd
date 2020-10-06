@@ -2,12 +2,21 @@
 % Please edit documentation in R/SoilMoistureTemperatureRegimes.R
 \name{STR_logic}
 \alias{STR_logic}
-\title{Soil temperature regime: based on Soil Survey Staff 2014 (Key to Soil
-Taxonomy): p.31 we ignore distinction between iso- and not iso-}
+\title{\var{NRCS} soil temperature regimes}
 \usage{
 STR_logic(MAST, MSST, SatSoilSummer_days, has_permafrost, has_Ohorizon)
 }
 \description{
-Soil temperature regime: based on Soil Survey Staff 2014 (Key to Soil
-Taxonomy): p.31 we ignore distinction between iso- and not iso-
+Soil temperature regimes are determined based on
+Soil Survey Staff 2014 (page 31, Key to Soil Taxonomy).
 }
+\section{Notes}{
+ The implementation currently ignores the distinction
+  between \var{iso-} and not \var{iso-} (p.31 of Soil Survey Staff 2014)
+}
+
+\references{
+Soil Survey Staff (2014). Keys to soil taxonomy,
+  12th ed. USDA Natural Resources Conservation Service, Washington, DC.
+}
+\keyword{internal}

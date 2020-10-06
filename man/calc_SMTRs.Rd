@@ -32,7 +32,7 @@ If \code{NULL} then \code{sim_out} must be provided so that the elements
 of \code{sim_agg} can be determined internally. The list contains:
 \var{"soiltemp.dy.all"}, \var{"soiltemp.yr.all"}, \var{"soiltemp.mo.all"},
 \var{"vwcmatric.dy.all"}, \var{"swpmatric.dy.all"}, \var{"prcp.yr"},
-\var{"prcp.mo"}, \var{"pet.mo"}, and \var{"temp.mo"}. Note:
+\var{"prcp.mo"}, \var{"pet.mo"}, and \var{"tmp.mo"}. Note:
 if \code{sim_agg} has already been calculated for other reasons, then
 passing \code{sim_agg} may be faster than passing \code{sim_out},
 which (re-)calculates \code{sim_agg}.}
@@ -103,8 +103,10 @@ A list with the following elements: \itemize{
 }
 \description{
 Calculations are based on SSS (2014, 2015) and explained in detail in the
-\code{vignette(topic = "SoilMoistureRegimes_SoilTemperatureRegimes",
-package = "rSOILWAT2")}.
+\code{vignette(
+  topic = "SoilMoistureRegimes_SoilTemperatureRegimes",
+  package = "rSOILWAT2"
+)}.
 }
 \section{Details}{
  The argument \code{aggregate_at} determines at which level
@@ -130,6 +132,6 @@ Soil Survey Staff (2014). Keys to soil taxonomy,
   12th ed. USDA Natural Resources Conservation Service, Washington, DC.
 
 Soil Survey Staff (2015). Illustrated guide to soil
-taxonomy. USDA Natural Resources Conservation Service, National Soil Survey
-Center, Lincoln, Nebraska.
+  taxonomy. USDA Natural Resources Conservation Service, National Soil Survey
+  Center, Lincoln, Nebraska.
 }

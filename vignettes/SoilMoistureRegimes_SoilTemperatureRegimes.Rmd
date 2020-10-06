@@ -61,8 +61,15 @@ vignette: >
   SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
   # Check that simulation was successful and regimes could be identified:
-  stopifnot(as.logical(SMTR[c("regimes_done", "has_simulated_SoilTemp",
-    "has_realistic_SoilTemp")]), SMTR[["SMR_normalyears_N"]] > 2)
+  stopifnot(
+    as.logical(
+      SMTR[c(
+        "regimes_done",
+        "has_simulated_SoilTemp",
+        "has_realistic_SoilTemp"
+    )]),
+    SMTR[["SMR_normalyears_N"]] > 2
+  )
 
   # Take average across years and select regimes with more than 90% agreement
   crit_agree_frac <- 0.9
