@@ -410,9 +410,9 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #'   if \code{x} is not of class \code{\linkS4class{swOutput}} and
 #'   if \code{simTime1} and/or \code{simTime1} is \code{NULL}.
 #' @param simTime1 A named list or \code{NULL}.
-#'   See \code{\link[rSOILWAT2]{setup_time_simulation_run}}.
+#'   See \code{\link[rSW2data]{setup_time_simulation_run}}.
 #' @param simTime2 A named list or \code{NULL}.
-#'   See \code{\link[rSOILWAT2]{simTiming_ForEachUsedTimeUnit}}.
+#'   See \code{\link[rSW2data]{simTiming_ForEachUsedTimeUnit}}.
 #' @param debug_output An integer value. Level of additional outputs.
 #'   If \code{0}, then standard variables are returned.
 #'   If \code{1} or \code{2}, then additional elements are included in the
@@ -576,7 +576,7 @@ calc_GISSM <- function(
       )
     }
 
-    st1 <- rSOILWAT2::setup_time_simulation_run(
+    st1 <- rSW2data::setup_time_simulation_run(
       sim_time = list(
         spinup_N = 0,
         startyr = years[1],
@@ -603,7 +603,7 @@ calc_GISSM <- function(
       )
     }
 
-    st2 <- rSOILWAT2::simTiming_ForEachUsedTimeUnit(
+    st2 <- rSW2data::simTiming_ForEachUsedTimeUnit(
       useyrs = years,
       sim_tscales = "daily",
       latitude = site_latitude,

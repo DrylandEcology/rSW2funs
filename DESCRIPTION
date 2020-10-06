@@ -12,18 +12,24 @@ Description: Collection of functions that calculate new variables
     using rSOILWAT2 simulation output.
 Depends:
     R (>= 3.5.0),
+    methods,
     rSOILWAT2
 Imports:
     rSW2utils,
-    Rcpp (>= 1.0.5),
-    methods
+    rSW2data,
+    Rcpp (>= 1.0.5)
 Suggests:
-    testthat,
-    spelling,
-    lintr,
-    covr
+    bookdown,
+    covr,
+    knitr,
+    lintr (>= 2.0.0),
+    rmarkdown,
+    spelling (>= 2.1.0),
+    testthat
 Remotes:
-    github::DrylandEcology/rSW2utils
+    github::DrylandEcology/rSW2utils,
+    github::DrylandEcology/rSW2data,
+    github::DrylandEcology/rSOILWAT2
 LinkingTo:
     Rcpp
 NeedsCompilation: yes
@@ -34,3 +40,4 @@ Encoding: UTF-8
 LazyData: true
 Language: en-US
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr

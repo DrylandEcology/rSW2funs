@@ -31,7 +31,7 @@ on soil moisture and soil temperature regimes
 \examples{
 # Calculate soil moisture and soil temperature regimes
 sw_in <- rSOILWAT2::sw_exampleData
-sw_out <- sw_exec(inputData = sw_in)
+sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
 SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
 # Determine average across years and set aggregation agreement level
@@ -39,7 +39,9 @@ Tregime <- colMeans(SMTR[["STR"]]) >= 0.9
 Sregime <- colMeans(SMTR[["SMR"]]) >= 0.9
 
 # Calculate resilience and resistance categories
-clim <- calc_SiteClimate(weatherList = get_WeatherHistory(sw_in))
+clim <- rSOILWAT2::calc_SiteClimate(
+  weatherList = rSOILWAT2::get_WeatherHistory(sw_in)
+)
 calc_RRs_Chambers2014(Tregime, Sregime, MAP_mm = 10 * clim[["MAP_cm"]])
 
 }

@@ -29,7 +29,7 @@ on soil moisture and soil temperature regimes
 \examples{
 # Calculate soil moisture and soil temperature regimes
 sw_in <- rSOILWAT2::sw_exampleData
-sw_out <- sw_exec(inputData = sw_in)
+sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
 SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
 # Determine average across years and set aggregation agreement level

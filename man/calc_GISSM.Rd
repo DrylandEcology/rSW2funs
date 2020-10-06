@@ -44,10 +44,10 @@ if \code{x} is not of class \code{\linkS4class{swOutput}} and
 if \code{simTime1} and/or \code{simTime1} is \code{NULL}.}
 
 \item{simTime1}{A named list or \code{NULL}.
-See \code{\link[rSOILWAT2]{setup_time_simulation_run}}.}
+See \code{\link[rSW2data]{setup_time_simulation_run}}.}
 
 \item{simTime2}{A named list or \code{NULL}.
-See \code{\link[rSOILWAT2]{simTiming_ForEachUsedTimeUnit}}.}
+See \code{\link[rSW2data]{simTiming_ForEachUsedTimeUnit}}.}
 
 \item{debug_output}{An integer value. Level of additional outputs.
 If \code{0}, then standard variables are returned.

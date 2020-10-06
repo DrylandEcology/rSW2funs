@@ -1,9 +1,9 @@
 ---
 title: >-
-          How rSOILWAT2 calculates NCRS soil moisture regimes and soil
-          temperature regimes
+          Calculates NCRS soil moisture regimes and soil
+          temperature regimes based on SOILWAT2 simulations
 author: |
-  | Daniel R Schlaepfer \textsuperscript{1}, John B Bradford \textsuperscript{2}
+  | Daniel R Schlaepfer \textsuperscript{1,2}, John B Bradford \textsuperscript{2}
   | \textsuperscript{1} School of Forestry and Environmental Studies,
     Yale University, New Haven, CT
   | \textsuperscript{2} Southwest Biological Science Center,
@@ -32,26 +32,17 @@ vignette: >
 
 # How to use rSOILWAT2 to calculate SMRs and STRs
 
-## Install a sufficiently recent rSOILWAT2 package version:
-```{r, install, results = "hide"}
-  v <- try(utils::packageVersion("rSOILWAT2"), silent = TRUE)
-  if (inherits(v, "try-error") || v < "2.5.0") {
-    message(
-      "There is no or an outdated rSOILWAT2 version present. ",
-      "Please update to a more recent version and build vignettes: see",
-      "https://github.com/DrylandEcology/rSOILWAT2#installation"
-    )
-  }
-
-  stopifnot(require("rSOILWAT2", quietly = TRUE))
+## Load sufficiently recent versions of the packages rSOILWAT2 and rSW2funs
+```{r message = FALSE, warning = FALSE}
+  stopifnot(require("rSOILWAT2"), require("rSW2funs"))
 ```
 
 ## Load data and run rSOILWAT2 simulation
 ```{r, simulate}
-  # Load data for an example site: see ?sw_exampleData
+  # Load data for an example site: see ?rSOILWAT2::sw_exampleData
   sw_in <- rSOILWAT2::sw_exampleData
   # Run SOILWAT2 for the example site: see ?sw_exec
-  sw_out <- sw_exec(inputData = sw_in)
+  sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
 ```
 
 
@@ -152,8 +143,15 @@ vignette: >
 
 ```{r, rr, collapse = TRUE}
   # Determine resilience & resistance classes (sensu Chambers et al. 2014):
-  clim <- calc_SiteClimate(weatherList = get_WeatherHistory(sw_in))
-  RR <- calc_RRs_Chambers2014(Tregime, Sregime, MAP_mm = 10 * clim[["MAP_cm"]])
+  clim <- rSOILWAT2::calc_SiteClimate(
+    weatherList = rSOILWAT2::get_WeatherHistory(sw_in)
+  )
+
+  RR <- calc_RRs_Chambers2014(
+    Tregime,
+    Sregime,
+    MAP_mm = 10 * clim[["MAP_cm"]]
+  )
   print(RR)
 
   # Determine resilience & resistance classes (sensu Maestas et al. 2016):

@@ -16,13 +16,21 @@
 abiotic
 et
 MERCHANTABILITY
+operationalization
+rangeland
+sensu
+
 
 #------------------------------------
 #------ Abbreviations
 al
 funs
 GISSM
+GTR
+MPa
 ORCID
+RMRS
+th
 USGS
 
 #------------------------------------
@@ -30,9 +38,14 @@ USGS
 appveyor
 Artemisia
 codecov
+Espinosa
 github
+Havlina
 Lauenroth
+Maestas
 Palmquist
+Pellant
+Pyke
 roxygen
 rSFSTEP
 rSFSW
@@ -45,12 +58,14 @@ testthat
 travis
 tridentata
 Wickham
+Wuenschel
 
 
 #------------------------------------
 #--- Vignette `SoilMoistureRegimes_SoilTemperatureRegimes`
 AET
 AnhCOND
+aridic
 BASICSimulationModel
 cementation
 COND
@@ -58,6 +73,7 @@ cryic
 cryoturbation
 densic
 dif
+doy
 dryDaysAfterSummerSolstice
 ELSEIF
 epipedon
@@ -68,6 +84,7 @@ gelic
 gelisols
 histic
 hyperthermic
+iso
 jNSM
 kPa
 Lahn
@@ -96,13 +113,15 @@ numCumulativeDaysMoistDryOver
 numCumulativeDaysMoistOver
 Ohorizon
 OSM
+pagebreak
 paralithic
 pedogenic
 pergelic
 perudic
-precip
 PPT
 pptx
+pre
+precip
 SMR
 stCOND
 STR
@@ -118,3 +137,4 @@ tropustic
 typic
 udic
 ustic
+xeric
