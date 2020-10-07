@@ -12,11 +12,11 @@ Description: Collection of functions that calculate new variables
     using rSOILWAT2 simulation output.
 Depends:
     R (>= 3.5.0),
-    methods,
-    rSOILWAT2
+    methods
 Imports:
     rSW2utils,
     rSW2data,
+    rSOILWAT2,
     Rcpp (>= 1.0.5)
 Suggests:
     bookdown,

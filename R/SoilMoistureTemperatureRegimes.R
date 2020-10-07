@@ -1424,7 +1424,7 @@ calc_SMTRs <- function(
           # FALSE = moist more than 90 consecutive days
           MCS_CondsDF_yrs$MaxContDaysAnyMoistCumAbove8 <- with(
             MCS_CondsDF_day,
-            tapply(COND2_Test, Years, max_duration)
+            tapply(COND2_Test, Years, rSW2utils::max_duration)
           )
 
           MCS_CondsDF_yrs$COND2 <-
@@ -1470,7 +1470,7 @@ calc_SMTRs <- function(
           # Consecutive days of dry soil after summer solsitice
           tmp <- with(
             MCS_CondsDF_day[MCS_CondsDF_day$DOY %in% c(172:293), ],
-            tapply(MCS_Dry_All, Years, max_duration)
+            tapply(MCS_Dry_All, Years, rSW2utils::max_duration)
           )
 
           ids <- match(
@@ -1498,7 +1498,7 @@ calc_SMTRs <- function(
           # Consecutive days of Moist soil:
           MCS_CondsDF_yrs$MoistDaysConsecAny <- with(
             MCS_CondsDF_day,
-            tapply(!MCS_Dry_All, Years, max_duration)
+            tapply(!MCS_Dry_All, Years, rSW2utils::max_duration)
           )
           # TRUE = Moist more than 90 Consecutive Days
           MCS_CondsDF_yrs$COND8 <- MCS_CondsDF_yrs$MoistDaysConsecAny > 90
@@ -1509,7 +1509,7 @@ calc_SMTRs <- function(
           itmp <- MCS_CondsDF_day$DOY %in% c(355:365, 1:111)
           tmp <- with(
             MCS_CondsDF_day[itmp, ],
-            tapply(MCS_Moist_All, Years, max_duration)
+            tapply(MCS_Moist_All, Years, rSW2utils::max_duration)
           )
           ids <- match(
             MCS_CondsDF_yrs[, "Years"],
