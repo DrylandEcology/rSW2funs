@@ -301,7 +301,7 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
 #'   of \code{sim_agg} can be determined internally. The list contains:
 #'   \var{"soiltemp.dy.all"}, \var{"soiltemp.yr.all"}, \var{"soiltemp.mo.all"},
 #'   \var{"vwcmatric.dy.all"}, \var{"swpmatric.dy.all"}, \var{"prcp.yr"},
-#'   \var{"prcp.mo"}, \var{"pet.mo"}, and \var{"tmp.mo"}. Note:
+#'   \var{"prcp.mo"}, \var{"pet.mo"}, and \var{"temp.mo"}. Note:
 #'   if \code{sim_agg} has already been calculated for other reasons, then
 #'   passing \code{sim_agg} may be faster than passing \code{sim_out},
 #'   which (re-)calculates \code{sim_agg}.
@@ -557,6 +557,13 @@ calc_SMTRs <- function(
     SMTR[["has_simulated_SoilTemp"]] <- 1
 
     if (!exists("soiltemp.dy.all", where = sim_agg)) {
+      if (!inherits(sim_out, "swOutput")) {
+        stop(
+          "`sim_out` is not 'rSOILWAT2' output ",
+          "and 'soiltemp.dy.all' does not exist in `sim_agg`."
+        )
+      }
+
       sim_agg[["soiltemp.dy.all"]] <- list(
         val = slot(
           slot(sim_out, rSW2_glovars[["swof"]]["sw_soiltemp"]),
@@ -575,6 +582,13 @@ calc_SMTRs <- function(
       SMTR[["has_realistic_SoilTemp"]] <- 1
 
       if (!exists("soiltemp.yr.all", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'soiltemp.yr.all' does not exist in `sim_agg`."
+          )
+        }
+
         sim_agg[["soiltemp.yr.all"]] <- list(
           val = slot(
             slot(sim_out, rSW2_glovars[["swof"]]["sw_soiltemp"]),
@@ -584,6 +598,13 @@ calc_SMTRs <- function(
       }
 
       if (!exists("soiltemp.mo.all", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'soiltemp.mo.all' does not exist in `sim_agg`."
+          )
+        }
+
         sim_agg[["soiltemp.mo.all"]] <- list(
           val = slot(
             slot(sim_out, rSW2_glovars[["swof"]]["sw_soiltemp"]),
@@ -593,6 +614,13 @@ calc_SMTRs <- function(
       }
 
       if (!exists("vwcmatric.dy.all", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'vwcmatric.dy.all' does not exist in `sim_agg`."
+          )
+        }
+
         sim_agg[["vwcmatric.dy.all"]] <- list(
           val = slot(
             slot(sim_out, rSW2_glovars[["swof"]]["sw_vwcmatric"]),
@@ -615,6 +643,13 @@ calc_SMTRs <- function(
       }
 
       if (!exists("prcp.yr", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'prcp.yr' does not exist in `sim_agg`."
+          )
+        }
+
         tmp <- 10 * slot(
           slot(sim_out, rSW2_glovars[["swof"]]["sw_precip"]),
           "Year"
@@ -625,6 +660,13 @@ calc_SMTRs <- function(
       }
 
       if (!exists("prcp.mo", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'prcp.mo' does not exist in `sim_agg`."
+          )
+        }
+
         tmp <- 10 * slot(
           slot(sim_out, rSW2_glovars[["swof"]]["sw_precip"]),
           "Month"
@@ -635,6 +677,13 @@ calc_SMTRs <- function(
       }
 
       if (!exists("pet.mo", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'pet.mo' does not exist in `sim_agg`."
+          )
+        }
+
         tmp <- 10 * slot(
           slot(sim_out, rSW2_glovars[["swof"]]["sw_pet"]),
           "Month"
@@ -642,12 +691,19 @@ calc_SMTRs <- function(
         sim_agg[["pet.mo"]] <- list(val = tmp[st1[["index.usemo"]], 3])
       }
 
-      if (!exists("tmp.mo", where = sim_agg)) {
+      if (!exists("temp.mo", where = sim_agg)) {
+        if (!inherits(sim_out, "swOutput")) {
+          stop(
+            "`sim_out` is not 'rSOILWAT2' output ",
+            "and 'temp.mo' does not exist in `sim_agg`."
+          )
+        }
+
         tmp <- 10 * slot(
           slot(sim_out, rSW2_glovars[["swof"]]["sw_temp"]),
           "Month"
         )
-        sim_agg[["tmp.mo"]] <- list(mean = tmp[st1[["index.usemo"]], 5])
+        sim_agg[["temp.mo"]] <- list(mean = tmp[st1[["index.usemo"]], 5])
       }
 
       # Prepare data
@@ -1141,7 +1197,7 @@ calc_SMTRs <- function(
 
         T50 <- soiltemp_nrsc[["dy"]][, 2 + i_depth50]
         # offset between soil and air temperature
-        fc <- sim_agg[["tmp.mo"]][["mean"]][st_NRCS[["i_mo_used"]]] -
+        fc <- sim_agg[["temp.mo"]][["mean"]][st_NRCS[["i_mo_used"]]] -
           soiltemp_nrsc[["mo"]][, 2 + i_depth50]
 
         SMTR[["cond_annual"]][, "meanTair_Tsoil50_offset_C"] <- tapply(

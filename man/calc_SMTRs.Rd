@@ -32,7 +32,7 @@ If \code{NULL} then \code{sim_out} must be provided so that the elements
 of \code{sim_agg} can be determined internally. The list contains:
 \var{"soiltemp.dy.all"}, \var{"soiltemp.yr.all"}, \var{"soiltemp.mo.all"},
 \var{"vwcmatric.dy.all"}, \var{"swpmatric.dy.all"}, \var{"prcp.yr"},
-\var{"prcp.mo"}, \var{"pet.mo"}, and \var{"tmp.mo"}. Note:
+\var{"prcp.mo"}, \var{"pet.mo"}, and \var{"temp.mo"}. Note:
 if \code{sim_agg} has already been calculated for other reasons, then
 passing \code{sim_agg} may be faster than passing \code{sim_out},
 which (re-)calculates \code{sim_agg}.}
