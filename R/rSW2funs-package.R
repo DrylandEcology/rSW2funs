@@ -26,7 +26,6 @@ rSW2_glovars <- new.env()
 
 
 ##------ Import from other packages
-#' @import rSOILWAT2
 #' @importFrom stats aggregate sd weighted.mean
 # Need methods to interact with rSOILWAT2's S4 output objects
 #' @importFrom methods slot as

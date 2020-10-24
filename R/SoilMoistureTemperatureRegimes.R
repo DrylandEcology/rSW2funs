@@ -407,9 +407,9 @@ calc_SMTRs <- function(
 
   has_soil_temperature <-
     has_soil_temperature &&
-    swSite_SoilTemperatureFlag(sim_in)
+    rSOILWAT2::swSite_SoilTemperatureFlag(sim_in)
 
-  soildat <- swSoils_Layers(sim_in)
+  soildat <- rSOILWAT2::swSoils_Layers(sim_in)
   req_soilvars <- c("depth_cm", "sand_frac", "clay_frac", "impermeability_frac")
   stopifnot(req_soilvars %in% colnames(soildat))
 
@@ -439,7 +439,10 @@ calc_SMTRs <- function(
   }
 
   # Get time sequence information
-  years <- seq(swYears_StartYear(sim_in), swYears_EndYear(sim_in))
+  years <- seq(
+    rSOILWAT2::swYears_StartYear(sim_in),
+    rSOILWAT2::swYears_EndYear(sim_in)
+  )
 
   st1_elem_names <- c(
     "useyrs", "no.useyr", "no.usemo",
@@ -480,7 +483,7 @@ calc_SMTRs <- function(
     st2 <- rSW2data::simTiming_ForEachUsedTimeUnit(
       useyrs = years,
       sim_tscales = c("daily", "monthly", "yearly"),
-      latitude = swSite_IntrinsicSiteParams(sim_in)[["Latitude"]],
+      latitude = rSOILWAT2::swSite_IntrinsicSiteParams(sim_in)[["Latitude"]],
       account_NorthSouth = TRUE
     )
   }
@@ -633,7 +636,7 @@ calc_SMTRs <- function(
         sim_agg[["swpmatric.dy.all"]] <- list(
           val = cbind(
             sim_agg[["vwcmatric.dy.all"]][["val"]][, ihead],
-            VWCtoSWP(
+            rSOILWAT2::VWCtoSWP(
               sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead],
               sand = soildat[, "sand_frac"],
               clay = soildat[, "clay_frac"]
@@ -1137,7 +1140,7 @@ calc_SMTRs <- function(
           swp_recalculate ||
           opt_SMTR[["aggregate_at"]] == "data"
         ) {
-            tmp <- VWCtoSWP(
+            tmp <- rSOILWAT2::VWCtoSWP(
               vwc_dy_nrsc[["val"]][, -ihead, drop = FALSE],
               sand = soildat[, "sand_frac"],
               clay = soildat[, "clay_frac"]
@@ -1268,18 +1271,18 @@ calc_SMTRs <- function(
         # TODO: guess (critical levels 'crit_Oh' are made up/not based on data):
         #       O-horizon if 50% trees or 75% shrubs or lots of litter
         crit_Oh <- c(0.5, 0.75, 0.8)
-        veg_comp <- swProd_Composition(sim_in)[1:4]
+        veg_comp <- rSOILWAT2::swProd_Composition(sim_in)[1:4]
 
         tmp <- cbind(
-          swProd_MonProd_grass(sim_in)[, "Litter"],
-          swProd_MonProd_shrub(sim_in)[, "Litter"],
-          swProd_MonProd_tree(sim_in)[, "Litter"],
-          swProd_MonProd_forb(sim_in)[, "Litter"]
+          rSOILWAT2::swProd_MonProd_grass(sim_in)[, "Litter"],
+          rSOILWAT2::swProd_MonProd_shrub(sim_in)[, "Litter"],
+          rSOILWAT2::swProd_MonProd_tree(sim_in)[, "Litter"],
+          rSOILWAT2::swProd_MonProd_forb(sim_in)[, "Litter"]
         )
 
         veg_litter <- mean(apply(sweep(tmp, 2, veg_comp, "*"), 1, sum))
         crit_litter <-
-          crit_Oh[3] * sum(swProd_Es_param_limit(sim_in) * veg_comp)
+          crit_Oh[3] * sum(rSOILWAT2::swProd_Es_param_limit(sim_in) * veg_comp)
 
         SMTR[["has_Ohorizon"]] <-
           (veg_litter >= crit_litter) &&
