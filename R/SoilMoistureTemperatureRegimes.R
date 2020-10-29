@@ -996,127 +996,62 @@ calc_SMTRs <- function(
 
         # Set soil depths and intervals accounting for shallow soil profiles:
         # Soil Survey Staff 2014: p.31)
-        ##Calculate soil temperature at necessary depths using a weighted mean
-        i_depth50 <- findInterval(SMTR[["Fifty_depth"]], soildat[, "depth_cm"])
-        calc50 <- !(SMTR[["Fifty_depth"]] == soildat[i_depth50, "depth_cm"])
+        depths_required <- sort(unique(c(
+          SMTR[["Fifty_depth"]],
+          SMTR[["MCS_depth"]],
+          SMTR[["Lanh_depth"]]
+        )))
 
-        if (calc50) {
-          weights50 <- rSW2data::calc_weights_from_depths(
-            i_depth50,
-            target_cm = SMTR[["Fifty_depth"]],
-            depths_cm = soildat[, "depth_cm"]
-          )
+        ## Calculate soil values at necessary depths using a weighted mean
+        tmp <- depths_required %in% soildat[, "depth_cm"]
+        depths_toadd <- depths_required[!tmp]
 
-          soildat <- t(rSW2data::add_layer_to_soil(
+        for (dadd in depths_toadd) {
+          prev_depths <- soildat[, "depth_cm"]
+
+          soildat <- t(rSW2data::add_soil_layer(
             x = t(soildat),
-            il = i_depth50,
-            w = weights50
+            target_cm = dadd,
+            depths_cm = prev_depths,
+            method = "interpolate"
           ))
-          i_depth50 <- findInterval(
-            SMTR[["Fifty_depth"]],
-            soildat[, "depth_cm"]
-          )
 
           soiltemp_nrsc <- lapply(
             soiltemp_nrsc,
             function(st) {
-              tmp <- rSW2data::add_layer_to_soil(
-                x = st[["data"]],
-                il = st[["nheader"]] + i_depth50,
-                w = weights50
+              itmp <- seq_len(st[["nheader"]])
+
+              list(
+                data = cbind(
+                  st[["data"]][, itmp, drop = FALSE],
+                  rSW2data::add_soil_layer(
+                    x = st[["data"]][, - itmp, drop = FALSE],
+                    target_cm = dadd,
+                    depths_cm = prev_depths,
+                    method = "interpolate"
+                  )
+                ),
+                nheader = st[["nheader"]]
               )
-              list(data = tmp, nheader = st[["nheader"]])
             }
           )
 
-          vwc_dy_nrsc[["val"]] <- rSW2data::add_layer_to_soil(
-            vwc_dy_nrsc[["val"]],
-            il = 2 + i_depth50,
-            w = weights50
+          vwc_dy_nrsc[["val"]] <- cbind(
+            vwc_dy_nrsc[["val"]][, ihead, drop = FALSE],
+            rSW2data::add_soil_layer(
+              x = vwc_dy_nrsc[["val"]][, - ihead, drop = FALSE],
+              target_cm = dadd,
+              depths_cm = prev_depths,
+              method = "interpolate"
+            )
           )
-          rm(weights50)
         }
 
-        i_MCS <- findInterval(SMTR[["MCS_depth"]], soildat[, "depth_cm"])
-        calcMCS <- !(SMTR[["MCS_depth"]] == soildat[i_MCS, "depth_cm"])
-
-        if (any(calcMCS)) {
-          for (k in which(calcMCS)) {
-            weightsMCS <- rSW2data::calc_weights_from_depths(
-              i_MCS[k],
-              target_cm = SMTR[["MCS_depth"]][k],
-              depths_cm = soildat[, "depth_cm"]
-            )
-            soildat <- t(rSW2data::add_layer_to_soil(
-              x = t(soildat),
-              il = i_MCS[k],
-              w = weightsMCS
-            ))
-            i_MCS <- findInterval(SMTR[["MCS_depth"]], soildat[, "depth_cm"])
-
-            soiltemp_nrsc <- lapply(
-              soiltemp_nrsc,
-              function(st) {
-                tmp <- rSW2data::add_layer_to_soil(
-                  x = st[["data"]],
-                  il = st[["nheader"]] + i_MCS[k],
-                  w = weightsMCS
-                )
-              list(data = tmp, nheader = st[["nheader"]])
-              }
-            )
-
-            vwc_dy_nrsc[["val"]] <- rSW2data::add_layer_to_soil(
-              x = vwc_dy_nrsc[["val"]],
-              il = 2 + i_MCS[k],
-              w = weightsMCS
-            )
-            rm(weightsMCS)
-          }
-        }
-
-        i_Lanh <- findInterval(SMTR[["Lanh_depth"]], soildat[, "depth_cm"])
-        calcLanh <- !(SMTR[["Lanh_depth"]] == soildat[i_Lanh, "depth_cm"])
-
-        if (any(calcLanh)) {
-          for (k in which(calcLanh)) {
-            weightsLanh <- rSW2data::calc_weights_from_depths(
-              i_Lanh[k],
-              target_cm = SMTR[["Lanh_depth"]][k],
-              depths_cm = soildat[, "depth_cm"]
-            )
-            soildat <- t(rSW2data::add_layer_to_soil(
-              x = t(soildat),
-              il = i_Lanh[k],
-              w = weightsLanh
-            ))
-            i_Lanh <- findInterval(SMTR[["Lanh_depth"]], soildat[, "depth_cm"])
-
-            soiltemp_nrsc <- lapply(
-              soiltemp_nrsc,
-              function(st) {
-                tmp <- rSW2data::add_layer_to_soil(
-                  st[["data"]],
-                  il = st[["nheader"]] + i_Lanh[k],
-                  w = weightsLanh
-                )
-                list(data = tmp, nheader = st[["nheader"]])
-              }
-            )
-
-            vwc_dy_nrsc[["val"]] <- rSW2data::add_layer_to_soil(
-              x = vwc_dy_nrsc[["val"]],
-              il = 2 + i_Lanh[k],
-              w = weightsLanh
-            )
-            rm(weightsLanh)
-          }
-        }
 
         soilLayers_N_NRCS <- dim(soildat)[1]
         soiltemp_nrsc <- lapply(soiltemp_nrsc, function(st) st[["data"]])
 
-        swp_recalculate <- calc50 || any(calcMCS) || any(calcLanh)
+        swp_recalculate <- length(depths_toadd) > 0
         if (swp_recalculate && verbose) {
           print(paste0(
             msg_tag, ": interpolated soil layers for NRCS soil ",
@@ -1140,25 +1075,31 @@ calc_SMTRs <- function(
           swp_recalculate ||
           opt_SMTR[["aggregate_at"]] == "data"
         ) {
-            tmp <- rSOILWAT2::VWCtoSWP(
-              vwc_dy_nrsc[["val"]][, -ihead, drop = FALSE],
-              sand = soildat[, "sand_frac"],
-              clay = soildat[, "clay_frac"]
-            )
+          tmp <- rSOILWAT2::VWCtoSWP(
+            vwc_dy_nrsc[["val"]][, -ihead, drop = FALSE],
+            sand = soildat[, "sand_frac"],
+            clay = soildat[, "clay_frac"]
+          )
 
-            tmp[st_NRCS[["index_usedy"]], , drop = FALSE]
+          tmp[st_NRCS[["index_usedy"]], , drop = FALSE]
 
-          } else {
-            sim_agg[["swpmatric.dy.all"]][["val"]][
-              st_NRCS[["index_usedy"]], -ihead, drop = FALSE]
-          }
+        } else {
+          sim_agg[["swpmatric.dy.all"]][["val"]][
+            st_NRCS[["index_usedy"]], -ihead, drop = FALSE]
+        }
 
         #MCS (Soil Survey Staff 2014: p.29)
+        i_depth50 <- rSW2data::identify_soillayers(
+          depths = SMTR[["Fifty_depth"]],
+          sdepth = soildat[, "depth_cm"]
+        )
+
         #What soil layer info used for MCS
         i_MCS <- rSW2data::identify_soillayers(
           depths = SMTR[["MCS_depth"]],
           sdepth = soildat[, "depth_cm"]
         )
+
         #Repeat for Anhydrous soil layer moisture delineation
         i_Lanh <- rSW2data::identify_soillayers(
           depths = SMTR[["Lanh_depth"]],
