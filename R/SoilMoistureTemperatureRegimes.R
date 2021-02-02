@@ -733,7 +733,7 @@ calc_SMTRs <- function(
         #     8 of the 12 months
         if (st1[["no.useyr"]] < 30) {
           print(paste0(
-            msg_tag, ": has only", st1[["no.useyr"]], "years ",
+            msg_tag, ": has only ", st1[["no.useyr"]], " years ",
             "of data; determination of normal years for NRCS soil moisture ",
             "regimes should be based on >= 30 years."
           ))
