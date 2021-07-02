@@ -1,7 +1,7 @@
 
-| Unix | Windows | Release | License | Coverage |
+| Unix | Windows | Release | DOI | License | Coverage |
 | :---- | :---- | :---- | :---- | :---- |
-[ ![Travis build status][1]][2] | [![Appveyor build status][3]][4] | [ ![github release][5]][6] | [![license][7]][8] | [![codecov status][9]][10] |
+[ ![Travis build status][1]][2] | [![Appveyor build status][3]][4] | [ ![github release][5]][6] | [ ![DOI][12]][13] | [![license][7]][8] | [![codecov status][9]][10] |
 
 [1]: https://travis-ci.org/DrylandEcology/rSW2funs.svg?branch=master
 [2]: https://travis-ci.org/DrylandEcology/rSW2funs
@@ -14,6 +14,8 @@
 [9]: https://codecov.io/gh/DrylandEcology/rSW2data/branch/master/graph/badge.svg
 [10]: https://codecov.io/gh/DrylandEcology/rSW2funs
 [11]: https://img.shields.io/github/downloads/DrylandEcology/rSW2funs/total.svg
+[12]: https://zenodo.org/badge/DOI/10.5281/zenodo.5056858.svg
+[13]: https://doi.org/10.5281/zenodo.5056858
 [SOILWAT2]: https://github.com/DrylandEcology/SOILWAT2
 [STEPWAT2]: https://github.com/DrylandEcology/STEPWAT2
 [rSFSTEP2]: https://github.com/DrylandEcology/rSFSTEP2
