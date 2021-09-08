@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // GISSM_germination_wait_times
 IntegerVector GISSM_germination_wait_times(const IntegerVector& time_to_germinate, const IntegerVector& duration_fave_cond);
 RcppExport SEXP _rSW2funs_GISSM_germination_wait_times(SEXP time_to_germinateSEXP, SEXP duration_fave_condSEXP) {

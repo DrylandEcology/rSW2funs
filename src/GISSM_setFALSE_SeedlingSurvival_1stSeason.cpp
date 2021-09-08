@@ -1,7 +1,15 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-//' Determine seedling survival in the first season (\var{\sQuote{ss1s}})
+//' Set seedling as dead for a given day in a given year (\var{\sQuote{ss1s}})
+//'
+//' @param ss1s Logical vector. Elements represent calendar days included in
+//'   all calendar year of \code{ry_useyrs}.
+//' @param ry_year_day Numerical vector. Elements represent calendar days
+//'   and values represent the calendar year of each day.
+//' @param ry_useyrs Numerical vector. The sequence of calendar year.
+//' @param y Numerical value. The index of the currently examined calendar year.
+//' @param doy Numerical value. The index of the currently examined calendar day.
 //'
 //' @section Note: The \pkg{Rcpp} version of the function is about 270x faster
 //'  for vectors of length 365 and 12,000x faster for vectors of length 11,000

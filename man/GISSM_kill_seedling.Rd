@@ -2,12 +2,25 @@
 % Please edit documentation in R/RcppExports.R
 \name{GISSM_kill_seedling}
 \alias{GISSM_kill_seedling}
-\title{Determine seedling survival in the first season (\var{\sQuote{ss1s}})}
+\title{Set seedling as dead for a given day in a given year (\var{\sQuote{ss1s}})}
 \usage{
 GISSM_kill_seedling(ss1s, ry_year_day, ry_useyrs, y, doy)
 }
+\arguments{
+\item{ss1s}{Logical vector. Elements represent calendar days included in
+all calendar year of \code{ry_useyrs}.}
+
+\item{ry_year_day}{Numerical vector. Elements represent calendar days
+and values represent the calendar year of each day.}
+
+\item{ry_useyrs}{Numerical vector. The sequence of calendar year.}
+
+\item{y}{Numerical value. The index of the currently examined calendar year.}
+
+\item{doy}{Numerical value. The index of the currently examined calendar day.}
+}
 \description{
-Determine seedling survival in the first season (\var{\sQuote{ss1s}})
+Set seedling as dead for a given day in a given year (\var{\sQuote{ss1s}})
 }
 \section{Note}{
  The \pkg{Rcpp} version of the function is about 270x faster
