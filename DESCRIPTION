@@ -1,6 +1,6 @@
 Package: rSW2funs
-Title: Calculating new response variables from rSOILWAT2 simulations
 Version: 0.0.0.9000
+Title: Functions for Derived Variables From SOILWAT2 Simulations
 Authors@R: c(
   person(
     "Daniel", "Schlaepfer",
