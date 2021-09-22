@@ -1,4 +1,3 @@
-context("GISSM")
 
 # Inputs
 GISSM_tag <- "debug_GISSM_output"

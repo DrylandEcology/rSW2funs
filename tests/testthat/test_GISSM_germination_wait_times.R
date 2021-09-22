@@ -1,4 +1,3 @@
-context("GISSM: germination_wait_times")
 
 # Inputs
 test_data <- list(

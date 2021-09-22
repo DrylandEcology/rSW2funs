@@ -1,5 +1,3 @@
-context("GISSM: kill_seedling")
-
 # Inputs
 calc_ref <- function(ss1s, offset, doy) {
   ref <- ss1s

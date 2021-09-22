@@ -4,6 +4,14 @@
 #' Determine wait times until germination based on information on favorable
 #'   conditions and time required to germinate
 #'
+#' @param time_to_germinate Numerical vector. Elements represent calendar days
+#'  and values represent number of days required to germination
+#'  if started on that day.
+#' @param duration_fave_cond Numerical vector. Elements represent calendar days
+#'  and values represent number of days with favorable conditions
+#'  for germination.
+#'
+#'
 #' @section Note: The \pkg{Rcpp} version of the function is about 270x faster
 #'  for vectors of length 365 and 12,000x faster for vectors of length 11,000
 #'  than the R version. The \pkg{Rcpp} version also reduced the memory
@@ -54,7 +62,7 @@ GISSM_germination_wait_times <- function(time_to_germinate, duration_fave_cond) 
 #'
 #' @param relevantLayers An integer vector, usually of length 365 or 366
 #'  (days).
-#' @param kill.conditions A m x p logical matrix with
+#' @param kill_conditions A m x p logical matrix with
 #'  \code{m >= length(relevantLayers)} and p represents the number of
 #'  simulated soil layers, i.e., \code{p >= max(relevantLayers, na.rm = TRUE)}.
 #'
@@ -82,7 +90,15 @@ GISSM_get_KilledBySoilLayers <- function(relevantLayers, kill_conditions) {
     .Call(`_rSW2funs_GISSM_get_KilledBySoilLayers`, relevantLayers, kill_conditions)
 }
 
-#' Determine seedling survival in the first season (\var{\sQuote{ss1s}})
+#' Set seedling as dead for a given day in a given year (\var{\sQuote{ss1s}})
+#'
+#' @param ss1s Logical vector. Elements represent calendar days included in
+#'   all calendar year of \code{ry_useyrs}.
+#' @param ry_year_day Numerical vector. Elements represent calendar days
+#'   and values represent the calendar year of each day.
+#' @param ry_useyrs Numerical vector. The sequence of calendar year.
+#' @param y Numerical value. The index of the currently examined calendar year.
+#' @param doy Numerical value. The index of the currently examined calendar day.
 #'
 #' @section Note: The \pkg{Rcpp} version of the function is about 270x faster
 #'  for vectors of length 365 and 12,000x faster for vectors of length 11,000

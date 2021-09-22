@@ -7,6 +7,15 @@
 \usage{
 GISSM_germination_wait_times(time_to_germinate, duration_fave_cond)
 }
+\arguments{
+\item{time_to_germinate}{Numerical vector. Elements represent calendar days
+and values represent number of days required to germination
+if started on that day.}
+
+\item{duration_fave_cond}{Numerical vector. Elements represent calendar days
+and values represent number of days with favorable conditions
+for germination.}
+}
 \description{
 Determine wait times until germination based on information on favorable
   conditions and time required to germinate

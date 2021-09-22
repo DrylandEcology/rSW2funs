@@ -1,5 +1,3 @@
-context("Calculate soil moisture/texture regimes")
-
 
 test_that("SMTR", {
   #--- Expectations
@@ -30,9 +28,9 @@ test_that("SMTR", {
     all(colnames(SMTR1[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
   )
 
-  expect_equivalent(SMTR1[["STR"]], expected_STR)
+  expect_equal(SMTR1[["STR"]], expected_STR, ignore_attr = TRUE)
 
-  expect_equivalent(SMTR1[["SMR"]], expected_SMR)
+  expect_equal(SMTR1[["SMR"]], expected_SMR, ignore_attr = TRUE)
 
 
   #--- Check with insufficient soil layers (add and recalculate)
@@ -97,7 +95,7 @@ test_that("SMTR", {
   for (kn in names(SMTR1)) {
     if (kn == "cond_annual") {
       # Small deviations in annual values due to interpolation of soil layers
-      expect_equal(SMTR2[[kn]], SMTR1[[kn]], tol = 0.1)
+      expect_equal(SMTR2[[kn]], SMTR1[[kn]], tolerance = 0.1)
     } else {
       # do not affect outcomes
       expect_identical(SMTR2[[kn]], SMTR1[[kn]])

@@ -10,7 +10,7 @@ GISSM_get_KilledBySoilLayers(relevantLayers, kill_conditions)
 \item{relevantLayers}{An integer vector, usually of length 365 or 366
 (days).}
 
-\item{kill.conditions}{A m x p logical matrix with
+\item{kill_conditions}{A m x p logical matrix with
 \code{m >= length(relevantLayers)} and p represents the number of
 simulated soil layers, i.e., \code{p >= max(relevantLayers, na.rm = TRUE)}.}
 }

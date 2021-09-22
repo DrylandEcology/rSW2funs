@@ -21,7 +21,7 @@ using namespace Rcpp;
 //'
 //' @param relevantLayers An integer vector, usually of length 365 or 366
 //'  (days).
-//' @param kill.conditions A m x p logical matrix with
+//' @param kill_conditions A m x p logical matrix with
 //'  \code{m >= length(relevantLayers)} and p represents the number of
 //'  simulated soil layers, i.e., \code{p >= max(relevantLayers, na.rm = TRUE)}.
 //'

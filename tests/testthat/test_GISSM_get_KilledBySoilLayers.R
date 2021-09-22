@@ -1,5 +1,3 @@
-context("GISSM: get_KilledBySoilLayers")
-
 
 # Inputs
 Nd <- 365
