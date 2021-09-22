@@ -14,9 +14,9 @@ Depends:
     R (>= 3.5.0),
     methods
 Imports:
-    rSW2utils,
-    rSW2data,
-    rSOILWAT2,
+    rSW2utils (>= 0.1.0),
+    rSW2data (>= 0.1.1),
+    rSOILWAT2  (>= 5.0.1),
     Rcpp (>= 1.0.5)
 Suggests:
     bookdown,
@@ -29,7 +29,7 @@ Suggests:
 Remotes:
     github::DrylandEcology/rSW2utils,
     github::DrylandEcology/rSW2data,
-    github::DrylandEcology/rSOILWAT2@reorganize_rSW2
+    github::DrylandEcology/rSOILWAT2
 LinkingTo:
     Rcpp
 NeedsCompilation: yes
