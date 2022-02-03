@@ -721,11 +721,9 @@ calc_GISSM <- function(
   Doy_SeedDispersalStart <- as.integer(max(round(tmp, 0) %% 365, 1))
 
   moveByDays <- if (Doy_SeedDispersalStart > 1) {
-    tmp <-
-      ISOdate(st1[["useyrs"]][1] - 1, 12, 31, tz = "UTC") -
-      ISOdate(st1[["useyrs"]][1] - 1, 1, 1, tz = "UTC") + 1 -
-      (Doy_SeedDispersalStart - 1)
-    as.integer(max(c(as.numeric(tmp) %% 365, 1)))
+    tmpl <- 365 + rSW2utils::isLeapYear(st1[["useyrs"]][1])
+    tmp <- tmpl - Doy_SeedDispersalStart + 1
+    as.integer(max(c(as.numeric(tmp) %% tmpl, 1)))
 
   } else {
     1L
@@ -757,15 +755,20 @@ calc_GISSM <- function(
   } else {
     # start later to get a complete RY
     fyr <- st2[["year_ForEachUsedDay"]][1]
-    dy <- if (rSW2utils::isLeapYear(fyr)) 0 else 1
 
-    tmp <- c(seq_len(Doy_SeedDispersalStart - dy), itail)
+    tmp <- c(seq_len(Doy_SeedDispersalStart - 1), itail)
     st_RY[["index.usedy"]] <- st1[["index.usedy"]][-tmp]
 
     tmp <- st2[["year_ForEachUsedDay"]] == fyr
     st_RY[["year_ForEachUsedDay"]] <- st2[["year_ForEachUsedDay"]][!tmp]
     st_RY[["doy_ForEachUsedDay"]] <- st2[["doy_ForEachUsedDay"]][!tmp]
   }
+
+  # Make sure that elements of `st_RY` have identical length
+  stopifnot(
+    length(st_RY[["index.usedy"]]) == length(st_RY[["year_ForEachUsedDay"]])
+  )
+
 
   # sequence of 'regeneration years' that are used for aggregation
   st_RY[["useyrs"]] <- unique(st_RY[["year_ForEachUsedDay"]])
