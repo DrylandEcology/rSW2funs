@@ -6,7 +6,7 @@ test_that("GISSM", {
   sw_in <- rSOILWAT2::sw_exampleData
   res <- rSOILWAT2::sw_exec(inputData = sw_in)
 
-  # Example 1: use rSOILWAT2 output directly to run GISSM
+  #--- Example 1: use rSOILWAT2 output directly to run GISSM ------
   GISSM_r1 <- suppressWarnings(calc_GISSM(
     x = res,
     soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
@@ -16,7 +16,8 @@ test_that("GISSM", {
       !rSOILWAT2::has_soilTemp_failed()
   ))
 
-  # Example 2: use list of daily values to run GISSM
+
+  #--- Example 2: use list of daily values to run GISSM ------
   dt <- "Day"
   tmp_swp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_swp"]), dt)
   tmp_snow <- slot(slot(res, rSW2_glovars[["swof"]]["sw_snow"]), dt)
@@ -47,7 +48,7 @@ test_that("GISSM", {
   expect_equal(dim(GISSM_r1[["outcome"]]), c(length(years) - 1, 3))
 
 
-  # Example 3: additional elements in the returned list
+  #--- Example 3: additional elements in the returned list ------
   GISSM_r3 <- suppressWarnings(calc_GISSM(
     x = res,
     soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
@@ -62,7 +63,7 @@ test_that("GISSM", {
   expect_length(GISSM_r3, 8)
 
 
-  # Example 4: additional output written to spreadsheet and pdf figure
+  #--- Example 4: additional output written to spreadsheet and pdf figure ------
   GISSM_r4 <- suppressWarnings(calc_GISSM(
     x = res,
     soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
@@ -83,4 +84,30 @@ test_that("GISSM", {
   # clean up
   unlink(paste0(GISSM_tag, ".csv"))
   unlink(paste0(GISSM_tag, ".pdf"))
+
+
+  #--- Example 5: GISSM start is on a leap or non-leap year ------
+  for (sy in 1980:1981) {
+
+    sw_in5 <- rSOILWAT2::sw_exampleData
+    rSOILWAT2::swWeather_FirstYearHistorical(sw_in5) <- -1
+    rSOILWAT2::swYears_StartYear(sw_in5) <- sy
+    rSOILWAT2::swYears_EndYear(sw_in5) <- 2010
+
+    res5 <- rSOILWAT2::sw_exec(inputData = sw_in5)
+
+    GISSM_r5 <- suppressWarnings(calc_GISSM(
+      x = res5,
+      soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in5)[, 1],
+      site_latitude =
+        rSOILWAT2::swSite_IntrinsicSiteParams(sw_in5)[["Latitude"]],
+      has_soil_temperature =
+        rSOILWAT2::swSite_SoilTemperatureFlag(sw_in5) &&
+        !rSOILWAT2::has_soilTemp_failed()
+    ))
+
+    expect_named(GISSM_r5, "outcome")
+    expect_equal(dim(GISSM_r5[["outcome"]]), c(2010 - sy, 3))
+  }
+
 })
