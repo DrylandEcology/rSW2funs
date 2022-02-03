@@ -1,6 +1,6 @@
 Package: rSW2funs
 Title: Functions for Derived Variables From SOILWAT2 Simulations
-Version: 0.1.1
+Version: 0.1.2-9000
 Authors@R: c(
   person(
     "Daniel", "Schlaepfer",
