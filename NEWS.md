@@ -1,4 +1,4 @@
-# rSW2funs v0.1.2-9000
+# rSW2funs v0.1.2
 * `calc_GISSM()` now produces correct output even for a non-leap start year
   (@CaitlinA, #2).
 * `calc_GISSM()` now checks more cases of possible inconsistencies
