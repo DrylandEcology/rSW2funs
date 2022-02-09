@@ -406,13 +406,18 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #'   information whether or not object \code{x} contains (good)
 #'   soil temperature values.
 #' @param years A numeric vector or \code{NULL}. The sequence of simulated
-#'   calendar years; required only
-#'   if \code{x} is not of class \code{\linkS4class{swOutput}} and
-#'   if \code{simTime1} and/or \code{simTime1} is \code{NULL}.
+#'   calendar years.
+#'   extracted from \code{x}
+#'   if \pkg{rSOILWAT2} class \code{\linkS4class{swOutput}};
+#'   otherwise, required if \code{simTime1} is \code{NULL}.
 #' @param simTime1 A named list or \code{NULL}.
 #'   See \code{\link[rSW2data]{setup_time_simulation_run}}.
+#'   If \code{NULL}, then derived from \code{years};
+#'   otherwise, must be consistent with \code{years}.
 #' @param simTime2 A named list or \code{NULL}.
 #'   See \code{\link[rSW2data]{simTiming_ForEachUsedTimeUnit}}.
+#'   If \code{NULL}, then derived from \code{simTime1};
+#'   otherwise, must be consistent with \code{simTime1}.
 #' @param debug_output An integer value. Level of additional outputs.
 #'   If \code{0}, then standard variables are returned.
 #'   If \code{1} or \code{2}, then additional elements are included in the
@@ -448,6 +453,12 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #' @references Schlaepfer, D.R., Lauenroth, W.K. & Bradford, J.B. (2014).
 #'   Modeling regeneration responses of big sagebrush (Artemisia tridentata)
 #'   to abiotic conditions. Ecol Model, 286, 66-77.
+#'
+#' @section Notes:
+#'   Time information is checked for consistency only minimally;
+#'   unexpected output may be produced if
+#'   \code{x}, \code{years}, \code{simTime1}, or \code{simeTim2} contain
+#'   inconsistent time content.
 #'
 #' @examples
 #' sw_in <- rSOILWAT2::sw_exampleData
@@ -533,7 +544,14 @@ calc_GISSM <- function(
     }
 
     tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_temp"]), "Day")[, 1]
-    years <- unique(tmp)
+
+    years_sim <- unique(tmp)
+
+    if (!is.null(years) && !setequal(years, years_sim)) {
+      stop("Values of `years` disagree with content of `x`.")
+    }
+
+    years <- years_sim
 
   } else {
     sim_vals <- x
@@ -552,7 +570,7 @@ calc_GISSM <- function(
     years <- sort(unique(years))
   }
 
-  has_bad_years <- is.null(years) || length(years) == 0
+  has_no_years <- is.null(years) || length(years) == 0
 
 
   #--- Get time sequence information
@@ -561,19 +579,27 @@ calc_GISSM <- function(
   )
 
 
-  is_simTime1_good <-
+  is_simTime1_good <- c(
     !is.null(simTime1) &&
-    all(!sapply(st1_elem_names, function(en) is.null(simTime1[[en]])))
+      all(!sapply(st1_elem_names, function(en) is.null(simTime1[[en]]))),
+    has_no_years ||
+      isTRUE(simTime1[["simstartyr"]] == years[1]) &&
+      isTRUE(max(simTime1[["useyrs"]]) == years[length(years)])
+  )
 
-  if (is_simTime1_good) {
+  if (all(is_simTime1_good)) {
     st1 <- simTime1
 
   } else {
-    if (has_bad_years) {
+    if (has_no_years) {
       stop(
         "Insufficient information on time: 'years' is needed to calculate ",
         "'simTime1', but they couldn't be determined from inputs."
       )
+    }
+
+    if (is_simTime1_good[1] && !is_simTime1_good[2]) {
+      stop("Values of `simTime1` and `years` are in disagreement.")
     }
 
     st1 <- rSW2data::setup_time_simulation_run(
@@ -588,23 +614,23 @@ calc_GISSM <- function(
   st2_elem_names <- c("year_ForEachUsedDay", "doy_ForEachUsedDay")
 
 
-  is_simTime2_good <-
+  is_simTime2_good <- c(
     !is.null(simTime2) &&
-    all(!sapply(st2_elem_names, function(en) is.null(simTime2[[en]])))
+      all(!sapply(st2_elem_names, function(en) is.null(simTime2[[en]]))),
+    setequal(unique(simTime2[["year_ForEachUsedDay"]]), st1[["useyrs"]]) &&
+      isTRUE(length(simTime2[["doy_ForEachUsedDay"]]) == st1[["no.usedy"]])
+  )
 
-  if (is_simTime2_good) {
+  if (all(is_simTime2_good)) {
     st2 <- simTime2
 
   } else {
-    if (has_bad_years) {
-      stop(
-        "Insufficient information on time: 'years' is needed to calculate ",
-        "'simTime2', but they couldn't be determined from inputs."
-      )
+    if (is_simTime2_good[1] && !is_simTime2_good[2]) {
+      stop("Values of `simTime1` and `simTime2` are in disagreement.")
     }
 
     st2 <- rSW2data::simTiming_ForEachUsedTimeUnit(
-      useyrs = years,
+      useyrs = st1[["useyrs"]],
       sim_tscales = "daily",
       latitude = site_latitude,
       account_NorthSouth = TRUE
@@ -721,11 +747,9 @@ calc_GISSM <- function(
   Doy_SeedDispersalStart <- as.integer(max(round(tmp, 0) %% 365, 1))
 
   moveByDays <- if (Doy_SeedDispersalStart > 1) {
-    tmp <-
-      ISOdate(st1[["useyrs"]][1] - 1, 12, 31, tz = "UTC") -
-      ISOdate(st1[["useyrs"]][1] - 1, 1, 1, tz = "UTC") + 1 -
-      (Doy_SeedDispersalStart - 1)
-    as.integer(max(c(as.numeric(tmp) %% 365, 1)))
+    tmpl <- 365 + rSW2utils::isLeapYear(st1[["useyrs"]][1])
+    tmp <- tmpl - Doy_SeedDispersalStart + 1
+    as.integer(max(c(as.numeric(tmp) %% tmpl, 1)))
 
   } else {
     1L
@@ -757,15 +781,20 @@ calc_GISSM <- function(
   } else {
     # start later to get a complete RY
     fyr <- st2[["year_ForEachUsedDay"]][1]
-    dy <- if (rSW2utils::isLeapYear(fyr)) 0 else 1
 
-    tmp <- c(seq_len(Doy_SeedDispersalStart - dy), itail)
+    tmp <- c(seq_len(Doy_SeedDispersalStart - 1), itail)
     st_RY[["index.usedy"]] <- st1[["index.usedy"]][-tmp]
 
     tmp <- st2[["year_ForEachUsedDay"]] == fyr
     st_RY[["year_ForEachUsedDay"]] <- st2[["year_ForEachUsedDay"]][!tmp]
     st_RY[["doy_ForEachUsedDay"]] <- st2[["doy_ForEachUsedDay"]][!tmp]
   }
+
+  # Make sure that elements of `st_RY` have identical length
+  stopifnot(
+    length(st_RY[["index.usedy"]]) == length(st_RY[["year_ForEachUsedDay"]])
+  )
+
 
   # sequence of 'regeneration years' that are used for aggregation
   st_RY[["useyrs"]] <- unique(st_RY[["year_ForEachUsedDay"]])

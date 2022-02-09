@@ -7,8 +7,7 @@
 \title{\pkg{rSW2funs}: Collection of functions that calculate new variables
 using rSOILWAT2 simulation output.}
 \description{
-Collection of functions that calculate new variables
-    using rSOILWAT2 simulation output.
+Collection of functions that calculate new variables using rSOILWAT2 simulation output.
 }
 \section{LICENSE}{
 
