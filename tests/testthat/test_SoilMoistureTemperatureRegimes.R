@@ -1,17 +1,23 @@
 
 test_that("SMTR", {
   #--- Expectations
-  expected_STR_name <- "Cryic"
-  tmp <- STR_names()
-  expected_STR <- rep(0, length(tmp))
-  names(expected_STR) <- tmp
-  expected_STR[expected_STR_name] <- 1
+  create_STR_expectation <- function(STRs) {
+    tmp <- STR_names()
+    stopifnot(STRs %in% tmp)
+    expected_STR <- rep(0, length(tmp))
+    names(expected_STR) <- tmp
+    expected_STR[STRs] <- 1
+    expected_STR
+  }
 
-  expected_SMR_name <- c("Ustic", "Typic-Tempustic")
-  tmp <- c(SMR_names(), SMRq_names())
-  expected_SMR <- rep(0, length(tmp))
-  names(expected_SMR) <- tmp
-  expected_SMR[expected_SMR_name] <- 1
+  create_SMR_expectation <- function(SMRs) {
+    tmp <- c(SMR_names(), SMRq_names())
+    stopifnot(SMRs %in% tmp)
+    expected_SMR <- rep(0, length(tmp))
+    names(expected_SMR) <- tmp
+    expected_SMR[SMRs] <- 1
+    expected_SMR
+  }
 
 
   #--- Check with rSOILWAT2 example data
@@ -28,9 +34,43 @@ test_that("SMTR", {
     all(colnames(SMTR1[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
   )
 
-  expect_equal(SMTR1[["STR"]], expected_STR, ignore_attr = TRUE)
+  expect_true(all(SMTR1[["STR"]]) %in% c(0, 1))
+  expect_true(all(SMTR1[["SMR"]]) %in% c(0, 1))
 
-  expect_equal(SMTR1[["SMR"]], expected_SMR, ignore_attr = TRUE)
+
+
+  # Compare against previously calculated values (~ rSOILWAT2 version)
+  list_rSOILWAT2_versions <- c("5.0.0", "5.1.0", "5.2.0")
+
+  compv <- sapply(
+    list_rSOILWAT2_versions,
+    function(ev) {
+      vtmp <- rSOILWAT2::get_version(sw_out)
+      c(isTRUE(vtmp >= ev), isTRUE(vtmp < ev))
+    }
+  )
+
+  eqv <- compv[1, -ncol(compv)] & compv[2, -1]
+
+  if (any(eqv)) {
+    if (eqv["5.0.0"]) {
+      expected_STR <- create_STR_expectation("Cryic")
+      expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
+
+    } else if (eqv["5.1.0"]) {
+      expected_STR <- create_STR_expectation("Cryic")
+      expected_SMR <- create_SMR_expectation(c("Xeric", "Typic-Xeric"))
+    }
+
+    expect_equal(SMTR1[["STR"]], expected_STR, ignore_attr = TRUE)
+    expect_equal(SMTR1[["SMR"]], expected_SMR, ignore_attr = TRUE)
+
+  } else {
+    warning(
+      "Test expectations for STR/SMR have not yet been implemented using ",
+      "rSOILWAT2 v", rSOILWAT2::get_version(sw_out)
+    )
+  }
 
 
   #--- Check with insufficient soil layers (add and recalculate)
