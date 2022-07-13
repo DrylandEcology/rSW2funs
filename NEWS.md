@@ -1,3 +1,5 @@
+# rSW2funs v0.1.3-9000
+
 # rSW2funs v0.1.2
 * `calc_GISSM()` now produces correct output even for a non-leap start year
   (@CaitlinA, #2).
