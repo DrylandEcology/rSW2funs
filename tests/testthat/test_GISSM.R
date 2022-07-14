@@ -34,6 +34,20 @@ test_that("GISSM", {
   tmp_snow <- slot(slot(res, rSW2_glovars[["swof"]]["sw_snow"]), dt)
   tmp_airtemp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_temp"]), dt)
   tmp_soiltemp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_soiltemp"]), dt)
+
+  has_sl_minmeanmax <- grepl(
+    "Lyr_1_avg_C",
+    colnames(tmp_soiltemp),
+    fixed = TRUE
+  )
+  cns_sl <- if (any(has_sl_minmeanmax)) {
+    # rSOILWAT2 since v5.3.0
+    paste0("Lyr_1_", c("min", "avg", "max"), "_C")
+  } else {
+    # rSOILWAT2 before v5.3.0
+    rep("Lyr_1", 3)
+  }
+
   xsim <- list(
     SWP_MPa = -0.1 * tmp_swp[, - (1:2), drop = FALSE],
     Snowpack_SWE_mm = 10 * tmp_snow[, "snowpackWaterEquivalent_cm"],
@@ -41,9 +55,9 @@ test_that("GISSM", {
     air_Tmean_C = tmp_airtemp[, "avg_C"],
     air_Tmax_C = tmp_airtemp[, "max_C"],
     # Using daily mean soil temperature in the absence of daily min/max
-    shallowsoil_Tmin_C = tmp_soiltemp[, "Lyr_1"],
-    shallowsoil_Tmean_C = tmp_soiltemp[, "Lyr_1"],
-    shallowsoil_Tmax_C = tmp_soiltemp[, "Lyr_1"]
+    shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[1]],
+    shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[2]],
+    shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[3]]
   )
 
 

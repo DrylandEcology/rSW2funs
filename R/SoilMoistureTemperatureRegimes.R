@@ -413,8 +413,10 @@ calc_SMTRs <- function(
   req_soilvars <- c("depth_cm", "sand_frac", "clay_frac", "impermeability_frac")
   stopifnot(req_soilvars %in% colnames(soildat))
 
+  n_soillayers <- NROW(soildat)
+
   if (is.null(soil_TOC)) {
-    soil_TOC <- rep(0, NROW(soildat))
+    soil_TOC <- rep(0, n_soillayers)
   }
 
   soildat <- cbind(
@@ -796,25 +798,47 @@ calc_SMTRs <- function(
       SMTR[["SMR_normalyears"]] <- st_NRCS[["yr_used"]]
       SMTR[["SMR_normalyears_N"]] <- st_NRCS[["N_yr_used"]]
 
+      # Subset to used time steps and extract average soil temperature values
       soiltemp_nrsc <- list(
         yr = list(
           data = {
-            tmp <- st1[["index.useyr"]][st_NRCS[["i_yr_used"]]]
-            sim_agg[["soiltemp.yr.all"]][["val"]][tmp, , drop = FALSE]
+            tmp <- sim_agg[["soiltemp.yr.all"]][["val"]]
+            id_rows <- st1[["index.useyr"]][st_NRCS[["i_yr_used"]]]
+            id_cols <- if (ncol(tmp) == 1 + n_soillayers) {
+              seq_len(1 + n_soillayers)
+            } else {
+              # rSOILWAT2 since v5.3.0: returns max/min/avg soil temperature
+              c(1, grep("Lyr_[[:digit:]]+_avg_C", colnames(tmp)))
+            }
+            tmp[id_rows, id_cols, drop = FALSE]
           },
           nheader = 1
         ),
         mo = list(
           data = {
-            tmp <- st1[["index.usemo"]][st_NRCS[["i_mo_used"]]]
-            sim_agg[["soiltemp.mo.all"]][["val"]][tmp, , drop = FALSE]
+            tmp <- sim_agg[["soiltemp.mo.all"]][["val"]]
+            id_rows <- st1[["index.usemo"]][st_NRCS[["i_mo_used"]]]
+            id_cols <- if (ncol(tmp) == 2 + n_soillayers) {
+              seq_len(2 + n_soillayers)
+            } else {
+              # rSOILWAT2 since v5.3.0: returns max/min/avg soil temperature
+              c(1:2, grep("Lyr_[[:digit:]]+_avg_C", colnames(tmp)))
+            }
+            tmp[id_rows, id_cols, drop = FALSE]
           },
           nheader = 2
         ),
         dy = list(
           data = {
-            tmp <- st1[["index.usedy"]][st_NRCS[["i_dy_used"]]]
-            sim_agg[["soiltemp.dy.all"]][["val"]][tmp, , drop = FALSE]
+            tmp <- sim_agg[["soiltemp.dy.all"]][["val"]]
+            id_rows <- st1[["index.usedy"]][st_NRCS[["i_dy_used"]]]
+            id_cols <- if (ncol(tmp) == 2 + n_soillayers) {
+              seq_len(2 + n_soillayers)
+            } else {
+              # rSOILWAT2 since v5.3.0: returns max/min/avg soil temperature
+              c(1:2, grep("Lyr_[[:digit:]]+_avg_C", colnames(tmp)))
+            }
+            tmp[id_rows, id_cols, drop = FALSE]
           },
           nheader = 2
         )

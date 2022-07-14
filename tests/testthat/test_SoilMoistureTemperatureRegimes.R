@@ -40,7 +40,7 @@ test_that("SMTR", {
 
 
   # Compare against previously calculated values (~ rSOILWAT2 version)
-  list_rSOILWAT2_versions <- c("5.0.0", "5.1.0", "5.2.0")
+  list_rSOILWAT2_versions <- c("5.0.0", "5.1.0", "5.2.0", "5.3.0", "5.4.0")
 
   compv <- sapply(
     list_rSOILWAT2_versions,
@@ -57,7 +57,7 @@ test_that("SMTR", {
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
 
-    } else if (eqv["5.1.0"]) {
+    } else if (eqv["5.1.0"] || eqv["5.2.0"] || eqv["5.3.0"]) {
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Xeric", "Typic-Xeric"))
     }

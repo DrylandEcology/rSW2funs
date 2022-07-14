@@ -483,6 +483,20 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #' tmp_airtemp <- slot(slot(res, "TEMP"), dt)
 #' tmp_soiltemp <- slot(slot(res, "SOILTEMP"), dt)
 #'
+#' has_sl_minmeanmax <- grepl(
+#'   "Lyr_1_avg_C",
+#'   colnames(tmp_soiltemp),
+#'   fixed = TRUE
+#' )
+#' cns_sl <- if (any(has_sl_minmeanmax)) {
+#'   # rSOILWAT2 since v5.3.0
+#'   paste0("Lyr_1_", c("min", "avg", "max"), "_C")
+#' } else {
+#'   # rSOILWAT2 before v5.3.0
+#'   # Daily mean soil temperature in the absence of daily min/max
+#'   rep("Lyr_1", 3)
+#' }
+#'
 #' GISSM_r2 <- calc_GISSM(
 #'   x = list(
 #'     SWP_MPa = -1 / 10 * tmp_swp[, -(1:2), drop = FALSE],
@@ -490,10 +504,9 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #'     air_Tmin_C = tmp_airtemp[, "min_C"],
 #'     air_Tmean_C = tmp_airtemp[, "avg_C"],
 #'     air_Tmax_C = tmp_airtemp[, "max_C"],
-#'     # Using daily mean soil temperature in the absence of daily min/max
-#'     shallowsoil_Tmin_C = tmp_soiltemp[, "Lyr_1"],
-#'     shallowsoil_Tmean_C = tmp_soiltemp[, "Lyr_1"],
-#'     shallowsoil_Tmax_C = tmp_soiltemp[, "Lyr_1"]
+#'     shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[1]],
+#'     shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[2]],
+#'     shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[3]]
 #'   ),
 #'   soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
 #'   site_latitude = rSOILWAT2::swSite_IntrinsicSiteParams(sw_in)[["Latitude"]],
@@ -676,28 +689,50 @@ calc_GISSM <- function(
     }
 
     if (!exists("shallowsoil_Tmin_C", where = sim_vals)) {
-      warning("Using daily mean soil temperature instead of daily minimum.")
+      tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]), "Day")
+      id_slmin <- grep("Lyr_1_min_C", colnames(tmp), fixed = TRUE)
 
-      sim_vals[["shallowsoil_Tmin_C"]] <- slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]),
-        "Day"
-      )[, "Lyr_1"]
+      var_slmin <- if (length(id_slmin) == 1) {
+        # rSOILWAT2 since v5.3.0
+        id_slmin
+      } else {
+        # rSOILWAT2 before v5.3.0
+        warning("Using daily mean soil temperature instead of daily minimum.")
+        "Lyr_1"
+      }
+
+      sim_vals[["shallowsoil_Tmin_C"]] <- tmp[, var_slmin]
     }
 
     if (!exists("shallowsoil_Tmean_C", where = sim_vals)) {
-      sim_vals[["shallowsoil_Tmean_C"]] <- slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]),
-        "Day"
-      )[, "Lyr_1"]
+      tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]), "Day")
+      id_slmean <- grep("Lyr_1_avg_C", colnames(tmp), fixed = TRUE)
+
+      var_slmean <- if (length(id_slmean) == 1) {
+        # rSOILWAT2 since v5.3.0
+        id_slmean
+      } else {
+        # rSOILWAT2 before v5.3.0
+        "Lyr_1"
+      }
+
+      sim_vals[["shallowsoil_Tmean_C"]] <- tmp[, var_slmean]
     }
 
     if (!exists("shallowsoil_Tmax_C", where = sim_vals)) {
-      warning("Using daily mean soil temperature instead of daily maximum.")
+      tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]), "Day")
+      id_slmax <- grep("Lyr_1_max_C", colnames(tmp), fixed = TRUE)
 
-      sim_vals[["shallowsoil_Tmax_C"]] <- slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]),
-        "Day"
-      )[, "Lyr_1"]
+      var_slmax <- if (length(id_slmax) == 1) {
+        # rSOILWAT2 since v5.3.0
+        id_slmax
+      } else {
+        # rSOILWAT2 before v5.3.0
+        warning("Using daily mean soil temperature instead of daily maximum.")
+        "Lyr_1"
+      }
+
+      sim_vals[["shallowsoil_Tmax_C"]] <- tmp[, var_slmax]
     }
   }
 

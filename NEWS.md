@@ -1,4 +1,9 @@
 # rSW2funs v0.1.3-9000
+* `calc_GISSM()` and `calc_SMTRs()` now handle `rSOILWAT2` `v3.5.0` output
+  with new minimum, average, and maximum soil temperature at surface and
+  at layer depth (updated column names) and continue to support output from
+  earlier `rSOILWAT2` versions.
+
 
 # rSW2funs v0.1.2
 * `calc_GISSM()` now produces correct output even for a non-leap start year
