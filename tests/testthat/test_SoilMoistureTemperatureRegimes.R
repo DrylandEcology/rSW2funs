@@ -39,27 +39,30 @@ test_that("SMTR", {
 
 
 
-  # Compare against previously calculated values (~ rSOILWAT2 version)
-  list_rSOILWAT2_versions <- c("5.0.0", "5.1.0", "5.2.0", "5.3.0", "5.4.0")
+  # Compare against latest rSOILWAT2 version that changed STMR output
+  tmpv <- c("5.0.0", "5.1.0")
 
-  compv <- sapply(
-    list_rSOILWAT2_versions,
-    function(ev) {
-      vtmp <- rSOILWAT2::get_version(sw_out)
-      c(isTRUE(vtmp >= ev), isTRUE(vtmp < ev))
-    }
+  compv <- vapply(
+    tmpv,
+    function(v) {
+      rSOILWAT2::check_version(sw_out, v, level = "minor")
+    },
+    FUN.VALUE = NA
   )
 
-  eqv <- compv[1, -ncol(compv)] & compv[2, -1]
+  eqv <- max(as.numeric_version(names(compv)[compv]))
 
-  if (any(eqv)) {
-    if (eqv["5.0.0"]) {
-      expected_STR <- create_STR_expectation("Cryic")
-      expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
 
-    } else if (eqv["5.1.0"] || eqv["5.2.0"] || eqv["5.3.0"]) {
+  if (length(eqv) == 1) {
+    if (eqv == "5.1.0") {
+      # rSOILWAT2 >= v5.1.0
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Xeric", "Typic-Xeric"))
+
+      } else if (eqv == "5.0.0") {
+      # rSOILWAT2 >= v5.0.0
+      expected_STR <- create_STR_expectation("Cryic")
+      expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
     }
 
     expect_equal(SMTR1[["STR"]], expected_STR, ignore_attr = TRUE)
