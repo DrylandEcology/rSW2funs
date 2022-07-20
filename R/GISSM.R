@@ -302,13 +302,13 @@ get.DoyMostFrequentSuccesses <- function(doys, data) {
       stats::quantile(doys[doys[, x] > 0, x], probs = c(0.1, 1), type = 3)
     }
   )
-  germ.doy <- if (all(!data[, 1])) {
+  germ.doy <- if (!any(data[, 1])) {
     # no successful germination
     list(NA, NA)
   } else {
     lapply(1:2, function(x) get.DoyAtLevel(doys[, 1], res1.max[x, 1]))
   }
-  sling.doy <- if (all(!data[, 2])) {
+  sling.doy <- if (!any(data[, 2])) {
     # no successful seedlings
     list(NA, NA)
   } else {
@@ -587,7 +587,7 @@ calc_GISSM <- function(
   } else {
     sim_vals <- x
 
-    has_req_vars <- all(!sapply(req_vars, function(v) is.null(sim_vals[[v]])))
+    has_req_vars <- !any(sapply(req_vars, function(v) is.null(sim_vals[[v]])))
 
     if (!has_req_vars) {
       stop(
@@ -612,7 +612,7 @@ calc_GISSM <- function(
 
   is_simTime1_good <- c(
     !is.null(simTime1) &&
-      all(!sapply(st1_elem_names, function(en) is.null(simTime1[[en]]))),
+      !any(sapply(st1_elem_names, function(en) is.null(simTime1[[en]]))),
     has_no_years ||
       isTRUE(simTime1[["simstartyr"]] == years[[1]]) &&
       isTRUE(max(simTime1[["useyrs"]]) == years[length(years)])
@@ -647,7 +647,7 @@ calc_GISSM <- function(
 
   is_simTime2_good <- c(
     !is.null(simTime2) &&
-      all(!sapply(st2_elem_names, function(en) is.null(simTime2[[en]]))),
+      !any(sapply(st2_elem_names, function(en) is.null(simTime2[[en]]))),
     setequal(unique(simTime2[["year_ForEachUsedDay"]]), st1[["useyrs"]]) &&
       isTRUE(length(simTime2[["doy_ForEachUsedDay"]]) == st1[["no.usedy"]])
   )
@@ -1321,15 +1321,15 @@ calc_GISSM <- function(
         #--- If killed then establish which factor killed first and whether
         # and how growth was stopped before kill
 
-        if (any(!is.na(killed_byCauses_onRYdoy))) {
+        if (!all(is.na(killed_byCauses_onRYdoy))) {
           kill_factor <- which.min(killed_byCauses_onRYdoy)
           SeedlingMortality_CausesByYear[y, kill_factor] <-
             SeedlingMortality_CausesByYear[y, kill_factor] + 1
           stop_factor <- which.min(stopped_byCauses_onRYdoy)
 
           if (
-            any(
-              !is.na(stopped_byCauses_onRYdoy)) &&
+            !all(
+              is.na(stopped_byCauses_onRYdoy)) &&
               killed_byCauses_onRYdoy[kill_factor] >
                 stopped_byCauses_onRYdoy[stop_factor]
           ) {
@@ -1379,14 +1379,14 @@ calc_GISSM <- function(
 
     # Periods with no successes
     tmp <- rle(GISSM[["outcome"]][, "Germination_Emergence"])
-    GISSM[["nogermination_periods_yrs"]] <- if (any(!tmp[["values"]])) {
+    GISSM[["nogermination_periods_yrs"]] <- if (!all(tmp[["values"]])) {
       tmp[["lengths"]][!tmp[["values"]]]
     } else {
       0
     }
 
     tmp <- rle(GISSM[["outcome"]][, "SeedlingSurvival_1stSeason"])
-    GISSM[["noseedlings_periods_yrs"]] <- if (any(!tmp[["values"]])) {
+    GISSM[["noseedlings_periods_yrs"]] <- if (!all(tmp[["values"]])) {
       tmp[["lengths"]][!tmp[["values"]]]
     } else {
       0

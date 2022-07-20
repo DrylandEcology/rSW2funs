@@ -453,7 +453,7 @@ calc_SMTRs <- function(
 
   is_simTime1_good <-
     !is.null(simTime1) &&
-    all(!sapply(st1_elem_names, function(en) is.null(simTime1[[en]])))
+    !any(sapply(st1_elem_names, function(en) is.null(simTime1[[en]])))
 
   if (is_simTime1_good) {
     st1 <- simTime1
@@ -477,7 +477,7 @@ calc_SMTRs <- function(
 
   is_simTime2_good <-
     !is.null(simTime2) &&
-    all(!sapply(st2_elem_names, function(en) is.null(simTime2[[en]])))
+    !any(sapply(st2_elem_names, function(en) is.null(simTime2[[en]])))
 
   if (is_simTime2_good) {
     st2 <- simTime2
@@ -1760,7 +1760,7 @@ calc_RRs_Chambers2014 <- function(Tregime, Sregime, MAP_mm) {
   resilience <- resistance <- rep(0, times = length(cats))
   names(resilience) <- names(resistance) <- cats
 
-  if (any(!is.na(Tregime)) && any(!is.na(Sregime))) {
+  if (!all(is.na(Tregime)) && !all(is.na(Sregime))) {
     Table1 <- Chambers2014_Table1()
     Type <- as.logical(
       Tregime[Table1[, "STR"]]) &
@@ -1863,7 +1863,7 @@ calc_RRs_Maestas2016 <- function(Tregime, Sregime) {
 
   RR <- c(Low = NA, Moderate = NA, High = NA)
 
-  if (any(!is.na(Tregime)) && any(!is.na(Sregime))) {
+  if (!all(is.na(Tregime)) && !all(is.na(Sregime))) {
     Table1 <- Maestas2016_Table1()
 
     tmp <- as.logical(
