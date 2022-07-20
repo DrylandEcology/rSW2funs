@@ -146,9 +146,9 @@ GISSM_r2 <- calc_GISSM(
     air_Tmin_C = tmp_airtemp[, "min_C"],
     air_Tmean_C = tmp_airtemp[, "avg_C"],
     air_Tmax_C = tmp_airtemp[, "max_C"],
-    shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[1]],
-    shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[2]],
-    shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[3]]
+    shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[[1]]],
+    shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[[2]]],
+    shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[[3]]]
   ),
   soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
   site_latitude = rSOILWAT2::swSite_IntrinsicSiteParams(sw_in)[["Latitude"]],
