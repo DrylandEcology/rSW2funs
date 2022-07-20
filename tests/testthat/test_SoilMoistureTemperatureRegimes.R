@@ -55,12 +55,12 @@ test_that("SMTR", {
 
   if (length(eqv) == 1) {
     if (eqv == "5.1.0") {
-      # rSOILWAT2 >= v5.1.0
+      # rSOILWAT2 since v5.1.0
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Xeric", "Typic-Xeric"))
 
       } else if (eqv == "5.0.0") {
-      # rSOILWAT2 >= v5.0.0
+      # rSOILWAT2 since v5.0.0
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
     }
