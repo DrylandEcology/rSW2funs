@@ -1007,7 +1007,11 @@ calc_SMTRs <- function(
           MARGIN = 2,
           FUN = function(x) {
             tmp <- rle(x < 0)
-            if (any(tmp[["values"]])) max(tmp[["lengths"]][tmp[["values"]]]) else 0L
+            if (any(tmp[["values"]])) {
+              max(tmp[["lengths"]][tmp[["values"]]])
+            } else {
+              0L
+            }
           }
         )
       )
@@ -1188,7 +1192,11 @@ calc_SMTRs <- function(
             tmp <- apply(tmp, 1, function(x) all(x >= opt_SMTR[["SWP_sat"]]))
             rtmp <- rle(tmp)
 
-            if (any(rtmp[["values"]])) max(rtmp[["lengths"]][rtmp[["values"]]]) else 0
+            if (any(rtmp[["values"]])) {
+              max(rtmp[["lengths"]][rtmp[["values"]]])
+            } else {
+              0
+            }
           },
           FUN.VALUE = NA_real_
         )
@@ -1245,13 +1253,15 @@ calc_SMTRs <- function(
         )
 
         veg_litter <- mean(apply(sweep(tmp, 2, veg_comp, "*"), 1, sum))
-        crit_litter <-
-          crit_Oh[[3]] * sum(rSOILWAT2::swProd_Es_param_limit(sim_in) * veg_comp)
+
+        tmp <- sum(rSOILWAT2::swProd_Es_param_limit(sim_in) * veg_comp)
+        crit_litter <- crit_Oh[[3]] * tmp
 
         SMTR[["has_Ohorizon"]] <-
           (veg_litter >= crit_litter) &&
           if (!is.finite(is_mineral_layer[[1]])) {
-            veg_comp[["Trees"]] > crit_Oh[[1]] || veg_comp[["Shrubs"]] > crit_Oh[[2]]
+            veg_comp[["Trees"]] > crit_Oh[[1]] ||
+              veg_comp[["Shrubs"]] > crit_Oh[[2]]
           } else {
             !is_mineral_layer[[1]]
           }
@@ -1522,7 +1532,8 @@ calc_SMTRs <- function(
           )
 
           # TRUE = Not Dry or Moist for as long 180 cumlative days
-          MCS_CondsDF_yrs[["COND7"]] <- MCS_CondsDF_yrs[["MoistDaysCumAny"]] > 180
+          MCS_CondsDF_yrs[["COND7"]] <-
+            MCS_CondsDF_yrs[["MoistDaysCumAny"]] > 180
 
           # COND8 - MCS is MOIST in SOME parts for more than 90 CONSECUTIVE days
           # Consecutive days of Moist soil:
