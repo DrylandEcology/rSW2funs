@@ -1358,7 +1358,7 @@ calc_SMTRs <- function(
           #   where MAST > 0 C
           ACS_CondsDF_yrs[["ACS_COND3"]] <- with(
             ACS_CondsDF_yrs,
-            ACS_HalfDryDaysCumAbove0C > .5 * ACS_SoilAbove0C
+            ACS_HalfDryDaysCumAbove0C > 0.5 * ACS_SoilAbove0C
           )
 
           ACS_CondsDF3 <- as.matrix(ACS_CondsDF_yrs[, icols1a, drop = FALSE])
@@ -1434,7 +1434,7 @@ calc_SMTRs <- function(
           #TRUE =Soils are dry greater than 1/2 cumulative days/year
           MCS_CondsDF_yrs[["COND1"]] <- with(
             MCS_CondsDF_yrs,
-            DryDaysCumAbove5C > .5 * SoilAbove5C
+            DryDaysCumAbove5C > 0.5 * SoilAbove5C
           )
 
           # Cond2 - Moist in SOME or all parts for less than 90 CONSECUTIVE
