@@ -750,7 +750,7 @@ calc_SMTRs <- function(
 
         MAP <- c(
           mean(sim_agg[["prcp.yr"]][["ppt"]]),
-          sd(sim_agg[["prcp.yr"]][["ppt"]])
+          stats::sd(sim_agg[["prcp.yr"]][["ppt"]])
         )
 
         normal1 <- as.vector(
@@ -761,7 +761,7 @@ calc_SMTRs <- function(
         MMP <- tapply(
           X = sim_agg[["prcp.mo"]][["ppt"]],
           INDEX = st2[["month_ForEachUsedMonth_NSadj"]],
-          FUN = function(x) c(mean(x), sd(x))
+          FUN = function(x) c(mean(x), stats::sd(x))
         )
 
         MMP <- matrix(unlist(MMP), nrow = 2, ncol = 12)
@@ -959,8 +959,8 @@ calc_SMTRs <- function(
       # the depth to which a dry soil will be moistened by 7.5 cm of water
       # within 48 hours."
       layers_width <- rSW2data::getLayersWidth(soildat[, "depth_cm"])
-      sand_tmp <- weighted.mean(soildat[, "sand_frac"], layers_width)
-      clay_tmp <- weighted.mean(soildat[, "clay_frac"], layers_width)
+      sand_tmp <- stats::weighted.mean(soildat[, "sand_frac"], layers_width)
+      clay_tmp <- stats::weighted.mean(soildat[, "clay_frac"], layers_width)
       # Practical depth definition of MCS
       #  - 10 to 30 cm below the soil surface if the particle-size class of
       #    the soil is fine-loamy, coarse-silty, fine-silty, or clayey
@@ -1144,7 +1144,7 @@ calc_SMTRs <- function(
         SMTR[["cond_annual"]][, "MATLanh"] <- apply(
           soiltemp_nrsc[["yr"]][, 1 + i_Lanh, drop = FALSE],
           MARGIN = 1,
-          FUN = weighted.mean,
+          FUN = stats::weighted.mean,
           w = soildat[i_Lanh, "depth_cm"]
         )
 
