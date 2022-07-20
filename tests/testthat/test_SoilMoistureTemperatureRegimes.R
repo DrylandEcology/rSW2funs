@@ -84,7 +84,7 @@ test_that("SMTR", {
   depths <- xsoils[, "depth_cm"]
   colnames(xsoils) <- sapply(
     strsplit(colnames(xsoils), split = "_", fixed = TRUE),
-    function(x) x[1]
+    function(x) x[[1]]
   )
 
   tmp <- stats::reshape(

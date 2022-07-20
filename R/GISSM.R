@@ -30,28 +30,33 @@ calc_DurationFavorableConds <- function(RYyear, consequences_unfavorable,
 
   if (consequences_unfavorable == 0) {
     # if conditions become unfavorable, then restart the count afterwards
-    temp.rle <- rle(conditions)
-    if (sum(!temp.rle$values) > 0) {
-      temp.unfavorable_startdoy <- c((1 + c(0,
-        # add starts for odd- and even-lengthed rle
-        cumsum(temp.rle$lengths)))[!temp.rle$values], 1 + sum(index.year))
+    tmp_rle <- rle(conditions)
+    if (sum(!tmp_rle[["values"]]) > 0) {
+      # add starts for odd- and even-lengthed rle
+      tmp <- 1 + c(0, cumsum(tmp_rle[["lengths"]]))
+      temp.unfavorable_startdoy <- c(
+        tmp[!tmp_rle[["values"]]],
+        1 + sum(index.year)
+      )
 
-      temp.rle$values <- if (temp.rle$values[1]) {
+      tmp_rle[["values"]] <- if (tmp_rle[["values"]][[1]]) {
         # first rle period is favorable
         rep(temp.unfavorable_startdoy, each = 2)
       } else {
         # first rle period is unfavorable
         rep(temp.unfavorable_startdoy[-1], each = 2)
       }
-      temp.rle$values <- temp.rle$values[seq_along(temp.rle$lengths)]
+
+      ids <- seq_along(tmp_rle[["lengths"]])
+      tmp_rle[["values"]] <- tmp_rle[["values"]][ids]
 
     } else {
       # every day is favorable
-      temp.rle$values <- length(conditions) + 1
+      tmp_rle[["values"]] <- length(conditions) + 1
     }
 
     # difference to next following start of a period of unfavorable conditions
-    out <- inverse.rle(temp.rle) - doys
+    out <- inverse.rle(tmp_rle) - doys
 
   } else if (consequences_unfavorable == 1) {
     # if conditions become unfavorable, then resume the count afterwards
@@ -154,7 +159,7 @@ calc_TimeToGerminate <- function(RYyear, Germination_WhileFavorable,
   b <- params[["Hardegree_b"]]
 
   tmp <- if (params[["Hardegree_d"]] == 1) {
-    if (runifs[1] > 0.5) {
+    if (runifs[[1]] > 0.5) {
       1 + rSW2_glovars[["tol"]]
     } else {
       1 - rSW2_glovars[["toln"]]
@@ -167,7 +172,7 @@ calc_TimeToGerminate <- function(RYyear, Germination_WhileFavorable,
   tmp.c <- if (params[["Hardegree_c"]] != 0) {
     params[["Hardegree_c"]]
   } else {
-    sign(runifs[2] - 0.5) * rSW2_glovars[["tol"]]
+    sign(runifs[[2]] - 0.5) * rSW2_glovars[["tol"]]
   }
 
   # consequences of unfavorable conditions coded in here
@@ -199,22 +204,23 @@ calc_TimeToGerminate <- function(RYyear, Germination_WhileFavorable,
 do.vector <- function(kill.vector, max_time_to_kill) {
   doys <- seq_along(kill.vector)
   doys[!kill.vector] <- NA  #calculate only for kill days
-  temp.rle <- rle(kill.vector)
+  tmp_rle <- rle(kill.vector)
 
-  if (sum(!temp.rle$values) > 0) {
-    temp.startdoy <- (1 + c(0, cumsum(temp.rle$lengths)))[!temp.rle$values]
-    temp.rle$values <- if (temp.rle$values[1]) {
+  if (sum(!tmp_rle[["values"]]) > 0) {
+    tmp <- (1 + c(0, cumsum(tmp_rle[["lengths"]])))
+    temp.startdoy <- tmp[!tmp_rle[["values"]]]
+    tmp_rle[["values"]] <- if (tmp_rle[["values"]][[1]]) {
       rep(temp.startdoy, each = 2)
     } else {
       rep(temp.startdoy[-1], each = 2)
     }
-    temp.rle$values <- temp.rle$values[seq_along(temp.rle$lengths)]
+    tmp_rle[["values"]] <- tmp_rle[["values"]][seq_along(tmp_rle[["lengths"]])]
 
   } else {
     # every day is kill free
-    temp.rle$values <- length(kill.vector) + 1
+    tmp_rle[["values"]] <- length(kill.vector) + 1
   }
-  kill.durations <- inverse.rle(temp.rle) - doys
+  kill.durations <- inverse.rle(tmp_rle) - doys
   mortality <- rep(FALSE, times = length(kill.vector))
   mortality[kill.durations > max_time_to_kill] <- TRUE
 
@@ -243,15 +249,15 @@ check_SuitableGrowthThisYear <- function(
 
   if (consequences_unfavorable == 0) {
     # if conditions become unfavorable, then stop growth for rest of season
-    temp.rle <- rle(favorable_conditions)
-    temp.firstFavorable.index <- which(temp.rle$values)[1]
+    tmp_rle <- rle(favorable_conditions)
+    temp.firstFavorable.index <- which(tmp_rle[["values"]])[[1]]
 
     if (!is.na(temp.firstFavorable.index) &&
-        temp.firstFavorable.index < length(temp.rle$values)) {
+        temp.firstFavorable.index < length(tmp_rle[["values"]])) {
 
-      temp <- (temp.firstFavorable.index + 1):length(temp.rle$values)
-      temp.rle$values[temp] <- FALSE
-      out <- inverse.rle(temp.rle)
+      temp <- (temp.firstFavorable.index + 1):length(tmp_rle[["values"]])
+      tmp_rle[["values"]][temp] <- FALSE
+      out <- inverse.rle(tmp_rle)
 
     } else {
       # nothing changed, either because all days are either favorable or
@@ -504,9 +510,9 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #'     air_Tmin_C = tmp_airtemp[, "min_C"],
 #'     air_Tmean_C = tmp_airtemp[, "avg_C"],
 #'     air_Tmax_C = tmp_airtemp[, "max_C"],
-#'     shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[1]],
-#'     shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[2]],
-#'     shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[3]]
+#'     shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[[1]]],
+#'     shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[[2]]],
+#'     shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[[3]]]
 #'   ),
 #'   soillayer_depths_cm = rSOILWAT2::swSoils_Layers(sw_in)[, 1],
 #'   site_latitude = rSOILWAT2::swSite_IntrinsicSiteParams(sw_in)[["Latitude"]],
@@ -556,7 +562,7 @@ calc_GISSM <- function(
       )
     }
 
-    tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_temp"]), "Day")[, 1]
+    tmp <- slot(slot(x, rSW2_glovars[["swof"]][["sw_temp"]]), "Day")[, 1]
 
     years_sim <- unique(tmp)
 
@@ -596,7 +602,7 @@ calc_GISSM <- function(
     !is.null(simTime1) &&
       all(!sapply(st1_elem_names, function(en) is.null(simTime1[[en]]))),
     has_no_years ||
-      isTRUE(simTime1[["simstartyr"]] == years[1]) &&
+      isTRUE(simTime1[["simstartyr"]] == years[[1]]) &&
       isTRUE(max(simTime1[["useyrs"]]) == years[length(years)])
   )
 
@@ -611,14 +617,14 @@ calc_GISSM <- function(
       )
     }
 
-    if (is_simTime1_good[1] && !is_simTime1_good[2]) {
+    if (is_simTime1_good[[1]] && !is_simTime1_good[[2]]) {
       stop("Values of `simTime1` and `years` are in disagreement.")
     }
 
     st1 <- rSW2data::setup_time_simulation_run(
       sim_time = list(
         spinup_N = 0,
-        startyr = years[1],
+        startyr = years[[1]],
         endyr = years[length(years)]
       )
     )
@@ -638,7 +644,7 @@ calc_GISSM <- function(
     st2 <- simTime2
 
   } else {
-    if (is_simTime2_good[1] && !is_simTime2_good[2]) {
+    if (is_simTime2_good[[1]] && !is_simTime2_good[[2]]) {
       stop("Values of `simTime1` and `simTime2` are in disagreement.")
     }
 
@@ -655,41 +661,41 @@ calc_GISSM <- function(
   if (is_sw2) {
     if (!exists("SWP_MPa", where = sim_vals)) {
       sim_vals[["SWP_MPa"]] <- -1 / 10 * slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_swp"]),
+        slot(x, rSW2_glovars[["swof"]][["sw_swp"]]),
         "Day"
       )[, - (1:2), drop = FALSE]
     }
 
     if (!exists("Snowpack_SWE_mm", where = sim_vals)) {
       sim_vals[["Snowpack_SWE_mm"]] <- 10 * slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_snow"]),
+        slot(x, rSW2_glovars[["swof"]][["sw_snow"]]),
         "Day"
       )[, "snowpackWaterEquivalent_cm"]
     }
 
     if (!exists("air_Tmin_C", where = sim_vals)) {
       sim_vals[["air_Tmin_C"]] <- slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_temp"]),
+        slot(x, rSW2_glovars[["swof"]][["sw_temp"]]),
         "Day"
       )[, "min_C"]
     }
 
     if (!exists("air_Tmean_C", where = sim_vals)) {
       sim_vals[["air_Tmean_C"]] <- slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_temp"]),
+        slot(x, rSW2_glovars[["swof"]][["sw_temp"]]),
         "Day"
       )[, "avg_C"]
     }
 
     if (!exists("air_Tmax_C", where = sim_vals)) {
       sim_vals[["air_Tmax_C"]] <- slot(
-        slot(x, rSW2_glovars[["swof"]]["sw_temp"]),
+        slot(x, rSW2_glovars[["swof"]][["sw_temp"]]),
         "Day"
       )[, "max_C"]
     }
 
     if (!exists("shallowsoil_Tmin_C", where = sim_vals)) {
-      tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]), "Day")
+      tmp <- slot(slot(x, rSW2_glovars[["swof"]][["sw_soiltemp"]]), "Day")
       id_slmin <- grep("Lyr_1_min_C", colnames(tmp), fixed = TRUE)
 
       var_slmin <- if (length(id_slmin) == 1) {
@@ -705,7 +711,7 @@ calc_GISSM <- function(
     }
 
     if (!exists("shallowsoil_Tmean_C", where = sim_vals)) {
-      tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]), "Day")
+      tmp <- slot(slot(x, rSW2_glovars[["swof"]][["sw_soiltemp"]]), "Day")
       id_slmean <- grep("Lyr_1_avg_C", colnames(tmp), fixed = TRUE)
 
       var_slmean <- if (length(id_slmean) == 1) {
@@ -720,7 +726,7 @@ calc_GISSM <- function(
     }
 
     if (!exists("shallowsoil_Tmax_C", where = sim_vals)) {
-      tmp <- slot(slot(x, rSW2_glovars[["swof"]]["sw_soiltemp"]), "Day")
+      tmp <- slot(slot(x, rSW2_glovars[["swof"]][["sw_soiltemp"]]), "Day")
       id_slmax <- grep("Lyr_1_max_C", colnames(tmp), fixed = TRUE)
 
       var_slmax <- if (length(id_slmax) == 1) {
@@ -782,7 +788,7 @@ calc_GISSM <- function(
   Doy_SeedDispersalStart <- as.integer(max(round(tmp, 0) %% 365, 1))
 
   moveByDays <- if (Doy_SeedDispersalStart > 1) {
-    tmpl <- 365 + rSW2utils::isLeapYear(st1[["useyrs"]][1])
+    tmpl <- 365 + rSW2utils::isLeapYear(st1[["useyrs"]][[1]])
     tmp <- tmpl - Doy_SeedDispersalStart + 1
     as.integer(max(c(as.numeric(tmp) %% tmpl, 1)))
 
@@ -799,7 +805,7 @@ calc_GISSM <- function(
 
   if (st1[["startyr"]] > st1[["simstartyr"]]) {
     # start earlier to complete RY
-    st <- st1[["index.usedy"]][1]
+    st <- st1[["index.usedy"]][[1]]
 
     # index indicating which rows of the daily SOILWAT2 output is used
     st_RY[["index.usedy"]] <- c(
@@ -815,7 +821,7 @@ calc_GISSM <- function(
 
   } else {
     # start later to get a complete RY
-    fyr <- st2[["year_ForEachUsedDay"]][1]
+    fyr <- st2[["year_ForEachUsedDay"]][[1]]
 
     tmp <- c(seq_len(Doy_SeedDispersalStart - 1), itail)
     st_RY[["index.usedy"]] <- st1[["index.usedy"]][-tmp]
@@ -838,12 +844,12 @@ calc_GISSM <- function(
   st_RY[["no.usedy"]] <- length(st_RY[["index.usedy"]])
   itail <- (st_RY[["no.usedy"]] - moveByDays + 1):st_RY[["no.usedy"]]
   st_RY[["year_ForEachUsedRYDay"]] <- c(
-    rep(st1[["useyrs"]][1] - 1, moveByDays),
+    rep(st1[["useyrs"]][[1]] - 1, moveByDays),
     st_RY[["year_ForEachUsedDay"]][-itail]
   )
 
   # normal doy for each used 'doy of the regeneration year'
-  st <- st1[["index.usedy"]][1]
+  st <- st1[["index.usedy"]][[1]]
   st_RY[["doy_ForEachUsedRYDay"]] <- c(
     (st - moveByDays):(st - 1),
     st_RY[["doy_ForEachUsedDay"]][-itail]
@@ -1065,7 +1071,9 @@ calc_GISSM <- function(
 
   # deep copy because Rcpp-version of get_KilledBySoilLayers changes in place
   # which would create side effects on Seedling_Starts and Germination_Emergence
+  # nolint start: extraction_operator_linter.
   SeedlingSurvival_1stSeason[] <- SeedlingSurvival_1stSeason
+  # nolint end
 
   tmp <- paste0(
     "Seedlings1stSeason.Mortality.",
@@ -1146,7 +1154,7 @@ calc_GISSM <- function(
 
         tmp <- !thisSeedlingGrowth_AbsenceOfSnowCover[ids_season]
         if (any(tmp)) {
-          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueSnowCover"] <- sg_RYdoy + which(tmp)[1] #nolint
+          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueSnowCover"] <- sg_RYdoy + which(tmp)[[1]] #nolint
         }
 
         # Minimum temperature
@@ -1158,7 +1166,7 @@ calc_GISSM <- function(
 
         tmp <- !thisSeedlingGrowth_AtAboveTmin[ids_season]
         if (any(tmp)) {
-          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmin"] <- sg_RYdoy + which(tmp)[1] #nolint
+          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmin"] <- sg_RYdoy + which(tmp)[[1]] #nolint
         }
 
         # Maximum temperature
@@ -1170,7 +1178,7 @@ calc_GISSM <- function(
 
         tmp <- !thisSeedlingGrowth_AtBelowTmax[ids_season]
         if (any(tmp)) {
-          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmax"] <- sg_RYdoy + which(tmp)[1] #nolint
+          stopped_byCauses_onRYdoy["Seedlings1stSeason.Mortality.DuringStoppedGrowth.DueTmax"] <- sg_RYdoy + which(tmp)[[1]] #nolint
         }
 
         #--- Update days of growth or surviving
@@ -1191,17 +1199,17 @@ calc_GISSM <- function(
         #--- Book-keeping survival under above-ground conditions
         tmp <- thisYear_SeedlingMortality_UnderneathSnowCover[ids_season]
         if (any(tmp)) {
-          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.UnderneathSnowCover"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
+          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.UnderneathSnowCover"] <- sg_RYdoy + which(tmp)[[1]] - 1 #nolint
         }
 
         tmp <- thisYear_SeedlingMortality_ByTmin[ids_season]
         if (any(tmp)) {
-          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmin"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
+          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmin"] <- sg_RYdoy + which(tmp)[[1]] - 1 #nolint
         }
 
         tmp <- thisYear_SeedlingMortality_ByTmax[ids_season]
         if (any(tmp)) {
-          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmax"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
+          killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByTmax"] <- sg_RYdoy + which(tmp)[[1]] - 1 #nolint
         }
 
         #--- If not killed (yet) then grow and check survival below-ground
@@ -1225,9 +1233,9 @@ calc_GISSM <- function(
             if (any(thisSeedlingLivingButNotGrowing, na.rm = TRUE)) {
               # for days when growth stopped then copy relevant soil depth
               stopg <- addDepths <- rle(thisSeedlingLivingButNotGrowing)
-              RYDoys_stopg <- c(1, cumsum(stopg$lengths))
-              for (p in seq_along(stopg$values)[stopg$values]) {
-                addDepths$values[p] <- if (
+              RYDoys_stopg <- c(1, cumsum(stopg[["lengths"]]))
+              for (p in seq_along(stopg[["values"]])[stopg[["values"]]]) {
+                addDepths[["values"]][p] <- if (
                   is.na(thisSeedling_thisYear_RootingDepth[RYDoys_stopg[p]])
                 ) {
                   tmp <-
@@ -1270,7 +1278,7 @@ calc_GISSM <- function(
 
           tmp <- thisSeedling_thisYear_SeedlingMortality_ByChronicSWPMax[ids_season] #nolint
           if (any(tmp)) {
-            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMax"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
+            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMax"] <- sg_RYdoy + which(tmp)[[1]] - 1 #nolint
           }
 
           #--- Check survival under chronic SWPMin
@@ -1282,7 +1290,7 @@ calc_GISSM <- function(
 
           tmp <- thisSeedling_thisYear_SeedlingMortality_ByChronicSWPMin[ids_season] #nolint
           if (any(tmp)) {
-            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMin"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
+            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByChronicSWPMin"] <- sg_RYdoy + which(tmp)[[1]] - 1 #nolint
           }
 
           #--- Check survival under acute SWPMin
@@ -1294,7 +1302,7 @@ calc_GISSM <- function(
 
           tmp <- thisSeedling_thisYear_SeedlingMortality_ByAcuteSWPMin[ids_season] #nolint
           if (any(tmp)) {
-            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByAcuteSWPMin"] <- sg_RYdoy + which(tmp)[1] - 1 #nolint
+            killed_byCauses_onRYdoy["Seedlings1stSeason.Mortality.ByAcuteSWPMin"] <- sg_RYdoy + which(tmp)[[1]] - 1 #nolint
           }
         }
 
@@ -1342,7 +1350,7 @@ calc_GISSM <- function(
   dat_gissm1 <- cbind(Germination_Emergence, SeedlingSurvival_1stSeason)
   res1_yr_v0 <- stats::aggregate(
     x = dat_gissm1,
-    by = st_RY["year_ForEachUsedRYDay"],
+    by = st_RY["year_ForEachUsedRYDay"], # nolint: extraction_operator_linter.
     FUN = sum
   )
   res1_yr <- res1_yr_v0[index_RYuseyr, ]
@@ -1359,15 +1367,15 @@ calc_GISSM <- function(
 
     # Periods with no successes
     tmp <- rle(GISSM[["outcome"]][, "Germination_Emergence"])
-    GISSM[["nogermination_periods_yrs"]] <- if (any(!tmp$values)) {
-      tmp$lengths[!tmp$values]
+    GISSM[["nogermination_periods_yrs"]] <- if (any(!tmp[["values"]])) {
+      tmp[["lengths"]][!tmp[["values"]]]
     } else {
       0
     }
 
     tmp <- rle(GISSM[["outcome"]][, "SeedlingSurvival_1stSeason"])
-    GISSM[["noseedlings_periods_yrs"]] <- if (any(!tmp$values)) {
-      tmp$lengths[!tmp$values]
+    GISSM[["noseedlings_periods_yrs"]] <- if (any(!tmp[["values"]])) {
+      tmp[["lengths"]][!tmp[["values"]]]
     } else {
       0
     }
@@ -1383,7 +1391,7 @@ calc_GISSM <- function(
 
     res1_dy <- stats::aggregate(
       x = dat_gissm1,
-      by = st_RY["doy_ForEachUsedRYDay"],
+      by = st_RY["doy_ForEachUsedRYDay"], # nolint: extraction_operator_linter.
       FUN = sum
     )
 
@@ -1403,7 +1411,7 @@ calc_GISSM <- function(
 
     res2_yr_v0 <- stats::aggregate(
       x = dat_gissm2,
-      by = st_RY["year_ForEachUsedRYDay"],
+      by = st_RY["year_ForEachUsedRYDay"], # nolint: extraction_operator_linter.
       FUN = sum
     )
 
@@ -1555,7 +1563,7 @@ plot_GISSM_debug <- function(
     )
   )
 
-  p.cex <- max(0.5, min(1, exp(-0.01 * ylim[2]) + 0.5))
+  p.cex <- max(0.5, min(1, exp(-0.01 * ylim[[2]]) + 0.5))
   xp <- seq_along(dyf_snow) + Doy_SeedDispersalStart - 1
 
   # Snow-water equivalents
@@ -1571,13 +1579,13 @@ plot_GISSM_debug <- function(
 
   graphics::axis(
     side = 1,
-    pos = ylim[1],
+    pos = ylim[[1]],
     at = 365 * seq_along(st1[["index.useyr"]]),
     labels = st1[["useyr"]]
   )
   graphics::axis(
     side = 2,
-    pos = graphics::par("usr")[1],
+    pos = graphics::par("usr")[[1]],
     at = (tmp <- graphics::axTicks(2))[tmp >= 0]
   )
 

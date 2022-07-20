@@ -11,7 +11,7 @@ test_that("GISSM", {
   simTime1 <- rSW2data::setup_time_simulation_run(
     sim_time = list(
       spinup_N = 0,
-      startyr = years[1],
+      startyr = years[[1]],
       endyr = years[length(years)]
     )
   )
@@ -30,10 +30,10 @@ test_that("GISSM", {
     !rSOILWAT2::has_soilTemp_failed()
 
   dt <- "Day"
-  tmp_swp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_swp"]), dt)
-  tmp_snow <- slot(slot(res, rSW2_glovars[["swof"]]["sw_snow"]), dt)
-  tmp_airtemp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_temp"]), dt)
-  tmp_soiltemp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_soiltemp"]), dt)
+  tmp_swp <- slot(slot(res, rSW2_glovars[["swof"]][["sw_swp"]]), dt)
+  tmp_snow <- slot(slot(res, rSW2_glovars[["swof"]][["sw_snow"]]), dt)
+  tmp_airtemp <- slot(slot(res, rSW2_glovars[["swof"]][["sw_temp"]]), dt)
+  tmp_soiltemp <- slot(slot(res, rSW2_glovars[["swof"]][["sw_soiltemp"]]), dt)
 
   has_sl_minmeanmax <- grepl(
     "Lyr_1_avg_C",
@@ -55,9 +55,9 @@ test_that("GISSM", {
     air_Tmean_C = tmp_airtemp[, "avg_C"],
     air_Tmax_C = tmp_airtemp[, "max_C"],
     # Using daily mean soil temperature in the absence of daily min/max
-    shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[1]],
-    shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[2]],
-    shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[3]]
+    shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[[1]]],
+    shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[[2]]],
+    shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[[3]]]
   )
 
 
@@ -174,7 +174,7 @@ test_that("GISSM", {
   bad_simTime1 <- rSW2data::setup_time_simulation_run(
     sim_time = list(
       spinup_N = 0,
-      startyr = years[10],
+      startyr = years[[10]],
       endyr = years[length(years)]
     )
   )
