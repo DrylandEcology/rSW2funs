@@ -80,9 +80,9 @@ test_that("GISSM", {
   )
 
   # Checks
-  expect_equal(GISSM_r1, GISSM_r2a)
+  expect_identical(GISSM_r1, GISSM_r2a)
   expect_named(GISSM_r1, "outcome")
-  expect_equal(dim(GISSM_r1[["outcome"]]), c(length(years) - 1, 3))
+  expect_identical(dim(GISSM_r1[["outcome"]]), c(length(years) - 1L, 3L))
 
 
   #--- Pass time information as `simTime1` instead of `years`
@@ -94,7 +94,7 @@ test_that("GISSM", {
   )
 
   # Checks
-  expect_equal(GISSM_r2a, GISSM_r2b)
+  expect_identical(GISSM_r2a, GISSM_r2b)
 
 
   #--- Pass time information as `simTime1` and `simTime2`
@@ -106,7 +106,7 @@ test_that("GISSM", {
   )
 
   # Checks
-  expect_equal(GISSM_r2a, GISSM_r2c)
+  expect_identical(GISSM_r2a, GISSM_r2c)
 
 
   #--- Example 3: additional elements in the returned list ------
@@ -118,7 +118,7 @@ test_that("GISSM", {
     debug_output = 1
   ))
 
-  expect_equal(GISSM_r1[["outcome"]], GISSM_r3[["outcome"]])
+  expect_identical(GISSM_r1[["outcome"]], GISSM_r3[["outcome"]])
   expect_length(GISSM_r3, 8)
 
 
@@ -133,7 +133,7 @@ test_that("GISSM", {
     filename_tag = GISSM_tag
   ))
 
-  expect_equal(GISSM_r1[["outcome"]], GISSM_r4[["outcome"]])
+  expect_identical(GISSM_r1[["outcome"]], GISSM_r4[["outcome"]])
   expect_length(GISSM_r4, 8)
   expect_true(file.exists(paste0(GISSM_tag, ".csv")))
   expect_true(file.exists(paste0(GISSM_tag, ".pdf")))
@@ -164,7 +164,7 @@ test_that("GISSM", {
     ))
 
     expect_named(GISSM_r5, "outcome")
-    expect_equal(dim(GISSM_r5[["outcome"]]), c(2010 - sy, 3))
+    expect_identical(dim(GISSM_r5[["outcome"]]), c(2010L - sy, 3L))
   }
 
 

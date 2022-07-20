@@ -37,7 +37,7 @@ test_that("GISSM_kill_seedling", {
 
   for (k in seq_along(test_data))
     with(test_data[[k]],
-      expect_equal(
+      expect_identical(
         GISSM_kill_seedling(ss1s, ry_year_day, ry_useyrs, y, doy),
         ref,
         info = paste("Test dataset =", shQuote(names(test_data)[k]))

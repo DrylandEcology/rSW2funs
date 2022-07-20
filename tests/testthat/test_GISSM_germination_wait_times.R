@@ -86,7 +86,7 @@ test_that("germination_wait_times", {
   for (k in seq_along(test_data))
     with(
       test_data[[k]],
-      expect_equal(
+      expect_identical(
         as.integer(GISSM_germination_wait_times(ttg, dfc)),
         ref,
         info = paste("Test dataset =", shQuote(names(test_data)[k]))
