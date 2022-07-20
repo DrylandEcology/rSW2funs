@@ -718,7 +718,7 @@ calc_SMTRs <- function(
       #  water year in the southern hemisphere.
       wateryear_ForEachUsedDay_NSadj <-
         st2[["year_ForEachUsedDay_NSadj"]] +
-        ifelse(st2[["doy_ForEachUsedDay_NSadj"]] > 273, 1, 0)
+        as.integer(st2[["doy_ForEachUsedDay_NSadj"]] > 273)
 
       # eliminate last (potentially) incomplete) year
       tmp <- unique(wateryear_ForEachUsedDay_NSadj)
