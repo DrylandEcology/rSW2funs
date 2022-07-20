@@ -1081,16 +1081,15 @@ calc_SMTRs <- function(
             msg_tag, ": interpolated soil layers for NRCS soil ",
             "regimes because of insufficient soil layers: ",
             "required would be {",
-            paste(
+            toString(
               sort(unique(c(
                 SMTR[["Fifty_depth"]],
                 SMTR[["MCS_depth"]],
                 SMTR[["Lanh_depth"]]
-              ))),
-              collapse = ", "
+              )))
             ),
             "} and available are {",
-            paste(layers_depth_old, collapse = ", "),
+            toString(layers_depth_old),
             "}"
           ))
         }

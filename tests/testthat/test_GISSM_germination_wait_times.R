@@ -96,16 +96,16 @@ test_that("germination_wait_times", {
   if (FALSE) {
     for (k in seq_along(test_data)[-1]) {
       print(paste("Test =", k, "with dataset =", shQuote(names(test_data)[k])))
-      print(paste("ttg =", paste(test_data[[k]][["ttg"]], collapse = ", ")))
-      print(paste("dfc =", paste(test_data[[k]][["dfc"]], collapse = ", ")))
-      print(paste("ref =", paste(test_data[[k]][["ref"]], collapse = ", ")))
+      print(paste("ttg =", toString(test_data[[k]][["ttg"]])))
+      print(paste("dfc =", toString(test_data[[k]][["dfc"]])))
+      print(paste("ref =", toString(test_data[[k]][["ref"]])))
       out <- as.integer(
         GISSM_germination_wait_times(
           time_to_germinate = test_data[[k]][["ttg"]],
           duration_fave_cond = test_data[[k]][["dfc"]]
         )
       )
-      print(paste("out =", paste(out, collapse = ", ")))
+      print(paste("out =", toString(out)))
       print("")
     }
 }

@@ -395,7 +395,7 @@ parameters_GISSM_bigsagebrush <- function(...) {
   badp <- setdiff(nd, nx)
   if (length(badp)) {
     warning(
-      "Arguments ", paste(shQuote(badp), collapse = ", "),
+      "Arguments ", toString(shQuote(badp)),
       " are not GISSM parameters; they are ignored."
     )
   }
@@ -594,7 +594,7 @@ calc_GISSM <- function(
         "This function requires either that",
         "\n\t* `x` is a rSOILWAT2 output object with daily output, or that",
         "\n\t* `x` is a list with complete forcing data, i.e., ",
-        paste(shQuote(req_vars), collapse = ", ")
+        toString(shQuote(req_vars))
       )
     }
 
@@ -776,7 +776,7 @@ calc_GISSM <- function(
   if (any(hasnt_req_vars)) {
     stop(
       "Daily forcing variable(s) ",
-      paste(shQuote(req_vars[hasnt_req_vars]), collapse = ", "),
+      toString(shQuote(req_vars[hasnt_req_vars])),
       " have missing/insufficient values."
     )
   }
