@@ -1496,7 +1496,7 @@ calc_SMTRs <- function(
           # months following the summer solstice
           # Consecutive days of dry soil after summer solsitice
           tmp <- with(
-            MCS_CondsDF_day[MCS_CondsDF_day[["DOY"]] %in% c(172:293), ],
+            MCS_CondsDF_day[MCS_CondsDF_day[["DOY"]] %in% 172:293, ],
             tapply(MCS_Dry_All, Years, rSW2utils::max_duration)
           )
 
