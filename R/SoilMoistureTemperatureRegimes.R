@@ -451,9 +451,12 @@ calc_SMTRs <- function(
     "index.useyr", "index.usemo", "index.usedy"
   )
 
-  is_simTime1_good <-
-    !is.null(simTime1) &&
-    !any(sapply(st1_elem_names, function(en) is.null(simTime1[[en]])))
+  tmp <- vapply(
+    st1_elem_names,
+    function(en) is.null(simTime1[[en]]),
+    FUN.VALUE = NA
+  )
+  is_simTime1_good <- !is.null(simTime1) && !any(tmp)
 
   if (is_simTime1_good) {
     st1 <- simTime1
@@ -475,9 +478,13 @@ calc_SMTRs <- function(
     "yearno_ForEachUsedMonth_NSadj"
   )
 
-  is_simTime2_good <-
-    !is.null(simTime2) &&
-    !any(sapply(st2_elem_names, function(en) is.null(simTime2[[en]])))
+  tmp <- vapply(
+    st2_elem_names,
+    function(en) is.null(simTime2[[en]]),
+    FUN.VALUE = NA
+  )
+
+  is_simTime2_good <- !is.null(simTime2) && !any(tmp)
 
   if (is_simTime2_good) {
     st2 <- simTime2

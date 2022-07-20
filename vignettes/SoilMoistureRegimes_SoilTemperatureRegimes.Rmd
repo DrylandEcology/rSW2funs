@@ -34,7 +34,10 @@ vignette: >
 
 ## Load sufficiently recent versions of the packages rSOILWAT2 and rSW2funs
 ```{r message = FALSE, warning = FALSE}
-  stopifnot(require("rSOILWAT2"), require("rSW2funs"))
+  stopifnot(
+    requireNamespace("rSOILWAT2"),
+    requireNamespace("rSW2funs")
+  )
 ```
 
 ## Load data and run rSOILWAT2 simulation
@@ -49,7 +52,7 @@ vignette: >
 ## Calculate SMRs and STRs and underlying conditions for the example site
 ```{r, SMTRs, collapse = TRUE}
   # For more information, see ?calc_SMTRs
-  SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
+  SMTR <- rSW2funs::calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
   # Check that simulation was successful and regimes could be identified:
   stopifnot(
@@ -147,7 +150,7 @@ vignette: >
     weatherList = rSOILWAT2::get_WeatherHistory(sw_in)
   )
 
-  RR <- calc_RRs_Chambers2014(
+  RR <- rSW2funs::calc_RRs_Chambers2014(
     Tregime,
     Sregime,
     MAP_mm = 10 * clim[["MAP_cm"]]
@@ -155,7 +158,7 @@ vignette: >
   print(RR)
 
   # Determine resilience & resistance classes (sensu Maestas et al. 2016):
-  RR <- calc_RRs_Maestas2016(Tregime, Sregime)
+  RR <- rSW2funs::calc_RRs_Maestas2016(Tregime, Sregime)
   print(RR)
 ```
 

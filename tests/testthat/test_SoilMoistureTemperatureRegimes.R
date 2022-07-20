@@ -82,9 +82,10 @@ test_that("SMTR", {
   # Dissolve soil layers
   xsoils <- rSOILWAT2::swSoils_Layers(sw_in2)
   depths <- xsoils[, "depth_cm"]
-  colnames(xsoils) <- sapply(
+  colnames(xsoils) <- vapply(
     strsplit(colnames(xsoils), split = "_", fixed = TRUE),
-    function(x) x[[1]]
+    function(x) x[[1]],
+    FUN.VALUE = NA_character_
   )
 
   tmp <- stats::reshape(

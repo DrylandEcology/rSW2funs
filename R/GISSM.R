@@ -296,11 +296,12 @@ get.DoyAtLevel <- function(x, level) {
 get.DoyMostFrequentSuccesses <- function(doys, data) {
   # must return one of the values because the quantiles are compared against
   # the values in function 'get.DoyAtLevel'
-  res1.max <- sapply(
+  res1.max <- vapply(
     1:2,
     function(x) {
       stats::quantile(doys[doys[, x] > 0, x], probs = c(0.1, 1), type = 3)
-    }
+    },
+    FUN.VALUE = rep(NA_real_, 2L)
   )
   germ.doy <- if (!any(data[, 1])) {
     # no successful germination
@@ -587,7 +588,13 @@ calc_GISSM <- function(
   } else {
     sim_vals <- x
 
-    has_req_vars <- !any(sapply(req_vars, function(v) is.null(sim_vals[[v]])))
+    has_req_vars <- !any(
+      vapply(
+        req_vars,
+        function(v) is.null(sim_vals[[v]]),
+        FUN.VALUE = NA
+      )
+    )
 
     if (!has_req_vars) {
       stop(
@@ -609,10 +616,14 @@ calc_GISSM <- function(
     "useyrs", "no.usedy", "startyr", "simstartyr", "index.usedy"
   )
 
+  tmp <- vapply(
+    st1_elem_names,
+    function(en) is.null(simTime1[[en]]),
+    FUN.VALUE = NA
+  )
 
   is_simTime1_good <- c(
-    !is.null(simTime1) &&
-      !any(sapply(st1_elem_names, function(en) is.null(simTime1[[en]]))),
+    !is.null(simTime1) && !any(tmp),
     has_no_years ||
       isTRUE(simTime1[["simstartyr"]] == years[[1]]) &&
       isTRUE(max(simTime1[["useyrs"]]) == years[length(years)])
@@ -644,11 +655,18 @@ calc_GISSM <- function(
 
   st2_elem_names <- c("year_ForEachUsedDay", "doy_ForEachUsedDay")
 
+  tmp <- vapply(
+    st2_elem_names,
+    function(en) is.null(simTime2[[en]]),
+    FUN.VALUE = NA
+  )
 
   is_simTime2_good <- c(
-    !is.null(simTime2) &&
-      !any(sapply(st2_elem_names, function(en) is.null(simTime2[[en]]))),
-    setequal(unique(simTime2[["year_ForEachUsedDay"]]), st1[["useyrs"]]) &&
+    !is.null(simTime2) && !any(tmp),
+    setequal(
+      unique(simTime2[["year_ForEachUsedDay"]]),
+      st1[["useyrs"]]
+    ) &&
       isTRUE(length(simTime2[["doy_ForEachUsedDay"]]) == st1[["no.usedy"]])
   )
 
@@ -756,7 +774,7 @@ calc_GISSM <- function(
 
 
   # Check that daily forcing values are well-formed
-  hasnt_req_vars <- !sapply(
+  hasnt_req_vars <- !vapply(
     X = req_vars,
     FUN = function(v) {
       tmp <- !is.null(sim_vals[[v]])
@@ -770,7 +788,8 @@ calc_GISSM <- function(
       } else {
         tmp
       }
-    }
+    },
+    FUN.VALUE = NA
   )
 
   if (any(hasnt_req_vars)) {
@@ -1566,7 +1585,10 @@ plot_GISSM_debug <- function(
     width = max(4, 2 * length(st1[["index.useyr"]]))
   )
 
+  # nolint start: undesirable_function_linter.
   op <- graphics::par(mar = c(1, 3, 0.1, 0.1), mgp = c(2, 0.5, 0), las = 1)
+  # nolint end
+
   ylim <- c(
     -17.5,
     max(
@@ -1597,7 +1619,7 @@ plot_GISSM_debug <- function(
   )
   graphics::axis(
     side = 2,
-    pos = graphics::par("usr")[[1]],
+    pos = graphics::par("usr")[[1]], # nolint: undesirable_function_linter
     at = (tmp <- graphics::axTicks(2))[tmp >= 0]
   )
 
@@ -1685,7 +1707,7 @@ plot_GISSM_debug <- function(
     merge = TRUE
   )
 
-  graphics::par(op)
+  graphics::par(op) # nolint: undesirable_function_linter
   grDevices::dev.off()
 }
 

@@ -37,12 +37,16 @@ using namespace Rcpp;
 //' @examples
 //'  # The \pkg{Rcpp} function is equivalent to the following R version
 //'     get_KilledBySoilLayers_R <- function(relevantLayers, kill.conditions) {
-//'       vapply(seq_along(relevantLayers), function(k) {
+//'       vapply(
+//'         seq_along(relevantLayers),
+//'         function(k) {
 //'           if (all(is.finite(relevantLayers[k]))) {
 //'             all(as.logical(kill.conditions[k, seq_len(relevantLayers[k])]))
 //'           } else NA
-//'         }, FUN.VALUE = NA)
-//'    }
+//'         },
+//'         FUN.VALUE = NA
+//'       )
+//'     }
 //'
 //' @export
 // [[Rcpp::export]]
