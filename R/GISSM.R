@@ -97,11 +97,15 @@ get_modifiedHardegree2006NLR <- function(RYdoy, Estimate_TimeToGerminate,
 
     temp.c.lim <- - (Tgerm - b) * (d ^ 2 - 1) / d
     c <- if (c > 0) {
-      if (c > temp.c.lim) c else {
+      if (c > temp.c.lim) {
+        c
+      } else {
         temp.c.lim + rSW2_glovars[["tol"]]
       }
     } else if (c < 0) {
-      if (c < temp.c.lim) c else {
+      if (c < temp.c.lim) {
+        c
+      } else {
         temp.c.lim - rSW2_glovars[["tol"]]
       }
     }
@@ -292,8 +296,12 @@ get.DoyAtLevel <- function(x, level) {
 get.DoyMostFrequentSuccesses <- function(doys, data) {
   # must return one of the values because the quantiles are compared against
   # the values in function 'get.DoyAtLevel'
-  res1.max <- sapply(1:2, function(x)
-    stats::quantile(doys[doys[, x] > 0, x], probs = c(0.1, 1), type = 3))
+  res1.max <- sapply(
+    1:2,
+    function(x) {
+      stats::quantile(doys[doys[, x] > 0, x], probs = c(0.1, 1), type = 3)
+    }
+  )
   germ.doy <- if (all(!data[, 1])) {
     # no successful germination
     list(NA, NA)
@@ -308,8 +316,12 @@ get.DoyMostFrequentSuccesses <- function(doys, data) {
   }
   res1.max <- list(germ.doy, sling.doy)
 
-  unlist(lapply(res1.max, function(x)
-    c(min(x[[1]]), stats::median(x[[2]]), max(x[[1]]))))
+  unlist(
+    lapply(
+      res1.max,
+      function(x) c(min(x[[1]]), stats::median(x[[2]]), max(x[[1]]))
+    )
+  )
 }
 
 
