@@ -22,7 +22,7 @@ Suggests:
     bookdown,
     covr,
     knitr,
-    lintr (>= 2.0.0),
+    lintr (>= 3.0.0),
     rmarkdown,
     spelling (>= 2.1.0),
     testthat (>= 3.0.0)
