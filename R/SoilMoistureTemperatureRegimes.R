@@ -1343,33 +1343,35 @@ calc_SMTRs <- function(
             FUN = function(st) all(st < 5)
           )
 
-          ACS_CondsDF_yrs[["ACS_COND2"]] <- with(
-            ACS_CondsDF_day,
-            tapply(ACS_COND2_Test, Years, all)
+          ACS_CondsDF_yrs[["ACS_COND2"]] <- tapply(
+            ACS_CondsDF_day[["ACS_COND2_Test"]],
+            ACS_CondsDF_day[["Years"]],
+            all
           )
 
           # In the Lahn Depth, 1/2 of soil dry > 1/2 CUMULATIVE days when
           # Mean Annual ST > 0C
-          ACS_CondsDF_day[["ACS_COND3_Test"]] <- with(
-            ACS_CondsDF_day,
-            Lanh_Dry_Half == T50_at0C
-          )
-          ACS_CondsDF_yrs[["ACS_HalfDryDaysCumAbove0C"]] <- with(
-            ACS_CondsDF_day,
-            tapply(ACS_COND3_Test, Years, sum)
+          ACS_CondsDF_day[["ACS_COND3_Test"]] <-
+            ACS_CondsDF_day[["Lanh_Dry_Half"]] == ACS_CondsDF_day[["T50_at0C"]]
+
+          ACS_CondsDF_yrs[["ACS_HalfDryDaysCumAbove0C"]] <- tapply(
+            ACS_CondsDF_day[["ACS_COND3_Test"]],
+            ACS_CondsDF_day[["Years"]],
+            sum
           )
 
-          ACS_CondsDF_yrs[["ACS_SoilAbove0C"]] <- with(
-            ACS_CondsDF_day,
-            tapply(T50_at0C, Years, sum)
+          ACS_CondsDF_yrs[["ACS_SoilAbove0C"]] <- tapply(
+            ACS_CondsDF_day[["T50_at0C"]],
+            ACS_CondsDF_day[["Years"]],
+            sum
           )
 
           # TRUE = Half of soil layers are dry greater than half the days
           #   where MAST > 0 C
-          ACS_CondsDF_yrs[["ACS_COND3"]] <- with(
-            ACS_CondsDF_yrs,
-            ACS_HalfDryDaysCumAbove0C > 0.5 * ACS_SoilAbove0C
-          )
+          ACS_CondsDF_yrs[["ACS_COND3"]] <-
+            ACS_CondsDF_yrs[["ACS_HalfDryDaysCumAbove0C"]] >
+              0.5 * ACS_CondsDF_yrs[["ACS_SoilAbove0C"]]
+
 
           ACS_CondsDF3 <- as.matrix(ACS_CondsDF_yrs[, icols1a, drop = FALSE])
 
@@ -1426,40 +1428,38 @@ calc_SMTRs <- function(
 
           # COND1 - Dry in ALL parts for more than half of the CUMULATIVE days
           # per year when the soil temperature at a depth of 50cm is above 5C
-          MCS_CondsDF_day[["COND1_Test"]] <- with(
-            MCS_CondsDF_day,
-            MCS_Dry_All & T50_at5C
+          MCS_CondsDF_day[["COND1_Test"]] <-
+            MCS_CondsDF_day[["MCS_Dry_All"]] & MCS_CondsDF_day[["T50_at5C"]]
+
+          MCS_CondsDF_yrs[["DryDaysCumAbove5C"]] <- tapply(
+            MCS_CondsDF_day[["COND1_Test"]],
+            MCS_CondsDF_day[["Years"]],
+            sum
           )
 
-          MCS_CondsDF_yrs[["DryDaysCumAbove5C"]] <- with(
-            MCS_CondsDF_day,
-            tapply(COND1_Test, Years, sum)
-          )
-
-          MCS_CondsDF_yrs[["SoilAbove5C"]] <- with(
-            MCS_CondsDF_day,
-            tapply(T50_at5C, Years, sum)
+          MCS_CondsDF_yrs[["SoilAbove5C"]] <- tapply(
+            MCS_CondsDF_day[["T50_at5C"]],
+            MCS_CondsDF_day[["Years"]],
+            sum
           )
 
           #TRUE =Soils are dry greater than 1/2 cumulative days/year
-          MCS_CondsDF_yrs[["COND1"]] <- with(
-            MCS_CondsDF_yrs,
-            DryDaysCumAbove5C > 0.5 * SoilAbove5C
-          )
+          MCS_CondsDF_yrs[["COND1"]] <-
+            MCS_CondsDF_yrs[["DryDaysCumAbove5C"]] >
+              0.5 * MCS_CondsDF_yrs[["SoilAbove5C"]]
 
           # Cond2 - Moist in SOME or all parts for less than 90 CONSECUTIVE
           # days when the the soil temperature at a depth of 50cm is above 8C
-          MCS_CondsDF_day[["COND2_Test"]] <- with(
-            MCS_CondsDF_day,
-            !MCS_Dry_All & T50_at8C
-          )
+          MCS_CondsDF_day[["COND2_Test"]] <-
+            !MCS_CondsDF_day[["MCS_Dry_All"]] & MCS_CondsDF_day[["T50_at8C"]]
 
           # Maximum consecutive days
           # TRUE = moist less than 90 consecutive days during >8 C soils,
           # FALSE = moist more than 90 consecutive days
-          MCS_CondsDF_yrs[["MaxContDaysAnyMoistCumAbove8"]] <- with(
-            MCS_CondsDF_day,
-            tapply(COND2_Test, Years, rSW2utils::max_duration)
+          MCS_CondsDF_yrs[["MaxContDaysAnyMoistCumAbove8"]] <- tapply(
+            MCS_CondsDF_day[["COND2_Test"]],
+            MCS_CondsDF_day[["Years"]],
+            rSW2utils::max_duration
           )
 
           MCS_CondsDF_yrs[["COND2"]] <-
@@ -1477,9 +1477,10 @@ calc_SMTRs <- function(
           # COND3 - MCS is Not dry in ANY part as long as 90 CUMULATIVE days -
           # Can't be dry longer than 90 cum days
           # Number of days where any soils are dry:
-          MCS_CondsDF_yrs[["DryDaysCumAny"]] <- with(
-            MCS_CondsDF_day,
-            tapply(!MCS_Moist_All, Years, sum)
+          MCS_CondsDF_yrs[["DryDaysCumAny"]] <- tapply(
+            !MCS_CondsDF_day[["MCS_Moist_All"]],
+            MCS_CondsDF_day[["Years"]],
+            sum
           )
           # TRUE = Not Dry for as long 90 cumlative days,
           # FALSE = Dry as long as as 90 Cumlative days
@@ -1493,9 +1494,8 @@ calc_SMTRs <- function(
 
           # COND5 - The absolute difference between the temperature in winter
           # @ 50cm and the temperature in summer @ 50cm is > or < 6
-          MCS_CondsDF_yrs[["AbsDiffSoilTemp_DJFvsJJA"]] <- with(
-            MCS_CondsDF_yrs,
-            abs(T50djf - T50jja)
+          MCS_CondsDF_yrs[["AbsDiffSoilTemp_DJFvsJJA"]] <- abs(
+            MCS_CondsDF_yrs[["T50djf"]] - MCS_CondsDF_yrs[["T50jja"]]
           )
 
           # TRUE - Greater than 6, FALSE - Less than 6
@@ -1504,10 +1504,12 @@ calc_SMTRs <- function(
 
           # COND6 - Dry in ALL parts LESS than 45 CONSECUTIVE days in the 4
           # months following the summer solstice
-          # Consecutive days of dry soil after summer solsitice
-          tmp <- with(
-            MCS_CondsDF_day[MCS_CondsDF_day[["DOY"]] %in% 172:293, ],
-            tapply(MCS_Dry_All, Years, rSW2utils::max_duration)
+          # Consecutive days of dry soil after summer solstice
+          ids <- MCS_CondsDF_day[["DOY"]] %in% 172:293
+          tmp <- tapply(
+            MCS_CondsDF_day[["MCS_Dry_All"]][ids],
+            MCS_CondsDF_day[["Years"]][ids],
+            rSW2utils::max_duration
           )
 
           ids <- match(
@@ -1526,9 +1528,10 @@ calc_SMTRs <- function(
 
           # COND7 - MCS is MOIST in SOME parts for more than 180 CUMULATIVE days
           # Number of days where any soils are moist:
-          MCS_CondsDF_yrs[["MoistDaysCumAny"]] <- with(
-            MCS_CondsDF_day,
-            tapply(!MCS_Dry_All, Years, sum)
+          MCS_CondsDF_yrs[["MoistDaysCumAny"]] <- tapply(
+            !MCS_CondsDF_day[["MCS_Dry_All"]],
+            MCS_CondsDF_day[["Years"]],
+            sum
           )
 
           # TRUE = Not Dry or Moist for as long 180 cumlative days
@@ -1537,9 +1540,10 @@ calc_SMTRs <- function(
 
           # COND8 - MCS is MOIST in SOME parts for more than 90 CONSECUTIVE days
           # Consecutive days of Moist soil:
-          MCS_CondsDF_yrs[["MoistDaysConsecAny"]] <- with(
-            MCS_CondsDF_day,
-            tapply(!MCS_Dry_All, Years, rSW2utils::max_duration)
+          MCS_CondsDF_yrs[["MoistDaysConsecAny"]] <- tapply(
+            !MCS_CondsDF_day[["MCS_Dry_All"]],
+            MCS_CondsDF_day[["Years"]],
+            rSW2utils::max_duration
           )
           # TRUE = Moist more than 90 Consecutive Days
           MCS_CondsDF_yrs[["COND8"]] <-
@@ -1548,10 +1552,11 @@ calc_SMTRs <- function(
           # COND9 - Moist in ALL parts MORE than 45 CONSECUTIVE days in the 4
           # months following the winter solstice
           # Consecutive days of moist soil after winter solsitice:
-          itmp <- MCS_CondsDF_day[["DOY"]] %in% c(355:365, 1:111)
-          tmp <- with(
-            MCS_CondsDF_day[itmp, ],
-            tapply(MCS_Moist_All, Years, rSW2utils::max_duration)
+          ids <- MCS_CondsDF_day[["DOY"]] %in% c(355:365, 1:111)
+          tmp <- tapply(
+            MCS_CondsDF_day[["MCS_Moist_All"]][ids],
+            MCS_CondsDF_day[["Years"]][ids],
+            rSW2utils::max_duration
           )
           ids <- match(
             MCS_CondsDF_yrs[, "Years"],
@@ -1566,9 +1571,10 @@ calc_SMTRs <- function(
 
           # COND10 - MCS is Dry in ALL layers for more or equal to 360 days
           # Number of days where all soils are dry:
-          MCS_CondsDF_yrs[["AllDryDaysCumAny"]] <- with(
-            MCS_CondsDF_day,
-            tapply(MCS_Dry_All, Years, sum)
+          MCS_CondsDF_yrs[["AllDryDaysCumAny"]] <- tapply(
+            MCS_CondsDF_day[["MCS_Dry_All"]],
+            MCS_CondsDF_day[["Years"]],
+            sum
           )
           MCS_CondsDF_yrs[["COND10"]] <-
             MCS_CondsDF_yrs[["AllDryDaysCumAny"]] >= 360
