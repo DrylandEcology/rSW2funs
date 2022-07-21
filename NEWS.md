@@ -1,6 +1,7 @@
 # rSW2funs v0.1.3-9000
 * Linting updated to `lintr` >= 3 and
   lint workflow switched from package tests to Github Action (#5).
+* Github Actions are triggered for `release/**` branches in addition to `main`.
 * `calc_GISSM()` and `calc_SMTRs()` now handle `rSOILWAT2` `v3.5.0` output
   with new minimum, average, and maximum soil temperature at surface and
   at layer depth (updated column names) and continue to support output from
