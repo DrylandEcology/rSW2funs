@@ -16,37 +16,37 @@ cond4 <- cbind(matrix(TRUE, nrow = Nd, ncol = Nl3),
 
 test_that("GISSM_get_KilledBySoilLayers", {
 
-  expect_equal(GISSM_get_KilledBySoilLayers(NA, cond1), NA)
-  expect_equal(GISSM_get_KilledBySoilLayers(Nl, cond1), FALSE)
-  expect_equal(GISSM_get_KilledBySoilLayers(Nl, cond2), TRUE)
-  expect_equal(GISSM_get_KilledBySoilLayers(Nl2, cond3), TRUE)
-  expect_equal(GISSM_get_KilledBySoilLayers(2 * Nl2, cond3), FALSE)
-  expect_equal(GISSM_get_KilledBySoilLayers(Nl3, cond4), TRUE)
-  expect_equal(GISSM_get_KilledBySoilLayers(2 * Nl3, cond4), FALSE)
-  expect_equal(GISSM_get_KilledBySoilLayers(3 * Nl3, cond4), FALSE)
+  expect_identical(GISSM_get_KilledBySoilLayers(NA, cond1), NA)
+  expect_false(GISSM_get_KilledBySoilLayers(Nl, cond1))
+  expect_true(GISSM_get_KilledBySoilLayers(Nl, cond2))
+  expect_true(GISSM_get_KilledBySoilLayers(Nl2, cond3))
+  expect_false(GISSM_get_KilledBySoilLayers(2 * Nl2, cond3))
+  expect_true(GISSM_get_KilledBySoilLayers(Nl3, cond4))
+  expect_false(GISSM_get_KilledBySoilLayers(2 * Nl3, cond4))
+  expect_false(GISSM_get_KilledBySoilLayers(3 * Nl3, cond4))
 
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(NA, Nd), cond1), rep(NA, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(10, Nd), cond1), rep(FALSE, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(10, Nd), cond2), rep(TRUE, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(Nl2, Nd), cond3), rep(TRUE, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(2 * Nl2, Nd), cond3), rep(FALSE, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(Nl3, Nd), cond4), rep(TRUE, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(2 * Nl3, Nd), cond4), rep(FALSE, Nd)
   )
-  expect_equal(
+  expect_identical(
     GISSM_get_KilledBySoilLayers(rep(3 * Nl3, Nd), cond4), rep(FALSE, Nd)
   )
 

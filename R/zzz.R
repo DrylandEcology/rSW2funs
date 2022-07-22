@@ -36,8 +36,8 @@
   # 'rSW2_glovars' is defined in "rSW2funs-package.R"
 
   assign("swof", rSOILWAT2::sw_out_flags(), envir = rSW2_glovars)
-  assign("tol", sqrt(.Machine$double.eps), envir = rSW2_glovars)
-  assign("toln", sqrt(.Machine$double.neg.eps), envir = rSW2_glovars)
+  assign("tol", sqrt(.Machine[["double.eps"]]), envir = rSW2_glovars)
+  assign("toln", sqrt(.Machine[["double.neg.eps"]]), envir = rSW2_glovars)
 
   invisible()
 }
