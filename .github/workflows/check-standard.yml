@@ -48,6 +48,12 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      - name: Install rSOILWAT2 (with submodules)
+        run: |
+          install.packages('remotes')
+          remotes::install_github("DrylandEcology/rSOILWAT2")
+        shell: Rscript {0}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: |
@@ -60,5 +66,5 @@ jobs:
       - uses: r-lib/actions/check-r-package@v2
 
       - name: Test coverage
-        run: covr::codecov()
+        run: covr::codecov(quiet = FALSE)
         shell: Rscript {0}
