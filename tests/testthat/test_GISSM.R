@@ -11,7 +11,7 @@ test_that("GISSM", {
   simTime1 <- rSW2data::setup_time_simulation_run(
     sim_time = list(
       spinup_N = 0,
-      startyr = years[1],
+      startyr = years[[1]],
       endyr = years[length(years)]
     )
   )
@@ -30,10 +30,24 @@ test_that("GISSM", {
     !rSOILWAT2::has_soilTemp_failed()
 
   dt <- "Day"
-  tmp_swp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_swp"]), dt)
-  tmp_snow <- slot(slot(res, rSW2_glovars[["swof"]]["sw_snow"]), dt)
-  tmp_airtemp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_temp"]), dt)
-  tmp_soiltemp <- slot(slot(res, rSW2_glovars[["swof"]]["sw_soiltemp"]), dt)
+  tmp_swp <- slot(slot(res, rSW2_glovars[["swof"]][["sw_swp"]]), dt)
+  tmp_snow <- slot(slot(res, rSW2_glovars[["swof"]][["sw_snow"]]), dt)
+  tmp_airtemp <- slot(slot(res, rSW2_glovars[["swof"]][["sw_temp"]]), dt)
+  tmp_soiltemp <- slot(slot(res, rSW2_glovars[["swof"]][["sw_soiltemp"]]), dt)
+
+  has_sl_minmeanmax <- grepl(
+    "Lyr_1_avg_C",
+    colnames(tmp_soiltemp),
+    fixed = TRUE
+  )
+  cns_sl <- if (any(has_sl_minmeanmax)) {
+    # rSOILWAT2 since v5.3.0
+    paste0("Lyr_1_", c("min", "avg", "max"), "_C")
+  } else {
+    # rSOILWAT2 before v5.3.0
+    rep("Lyr_1", 3)
+  }
+
   xsim <- list(
     SWP_MPa = -0.1 * tmp_swp[, - (1:2), drop = FALSE],
     Snowpack_SWE_mm = 10 * tmp_snow[, "snowpackWaterEquivalent_cm"],
@@ -41,9 +55,9 @@ test_that("GISSM", {
     air_Tmean_C = tmp_airtemp[, "avg_C"],
     air_Tmax_C = tmp_airtemp[, "max_C"],
     # Using daily mean soil temperature in the absence of daily min/max
-    shallowsoil_Tmin_C = tmp_soiltemp[, "Lyr_1"],
-    shallowsoil_Tmean_C = tmp_soiltemp[, "Lyr_1"],
-    shallowsoil_Tmax_C = tmp_soiltemp[, "Lyr_1"]
+    shallowsoil_Tmin_C = tmp_soiltemp[, cns_sl[[1]]],
+    shallowsoil_Tmean_C = tmp_soiltemp[, cns_sl[[2]]],
+    shallowsoil_Tmax_C = tmp_soiltemp[, cns_sl[[3]]]
   )
 
 
@@ -66,9 +80,9 @@ test_that("GISSM", {
   )
 
   # Checks
-  expect_equal(GISSM_r1, GISSM_r2a)
+  expect_identical(GISSM_r1, GISSM_r2a)
   expect_named(GISSM_r1, "outcome")
-  expect_equal(dim(GISSM_r1[["outcome"]]), c(length(years) - 1, 3))
+  expect_identical(dim(GISSM_r1[["outcome"]]), c(length(years) - 1L, 3L))
 
 
   #--- Pass time information as `simTime1` instead of `years`
@@ -80,7 +94,7 @@ test_that("GISSM", {
   )
 
   # Checks
-  expect_equal(GISSM_r2a, GISSM_r2b)
+  expect_identical(GISSM_r2a, GISSM_r2b)
 
 
   #--- Pass time information as `simTime1` and `simTime2`
@@ -92,7 +106,7 @@ test_that("GISSM", {
   )
 
   # Checks
-  expect_equal(GISSM_r2a, GISSM_r2c)
+  expect_identical(GISSM_r2a, GISSM_r2c)
 
 
   #--- Example 3: additional elements in the returned list ------
@@ -104,7 +118,7 @@ test_that("GISSM", {
     debug_output = 1
   ))
 
-  expect_equal(GISSM_r1[["outcome"]], GISSM_r3[["outcome"]])
+  expect_identical(GISSM_r1[["outcome"]], GISSM_r3[["outcome"]])
   expect_length(GISSM_r3, 8)
 
 
@@ -119,7 +133,7 @@ test_that("GISSM", {
     filename_tag = GISSM_tag
   ))
 
-  expect_equal(GISSM_r1[["outcome"]], GISSM_r4[["outcome"]])
+  expect_identical(GISSM_r1[["outcome"]], GISSM_r4[["outcome"]])
   expect_length(GISSM_r4, 8)
   expect_true(file.exists(paste0(GISSM_tag, ".csv")))
   expect_true(file.exists(paste0(GISSM_tag, ".pdf")))
@@ -150,7 +164,7 @@ test_that("GISSM", {
     ))
 
     expect_named(GISSM_r5, "outcome")
-    expect_equal(dim(GISSM_r5[["outcome"]]), c(2010 - sy, 3))
+    expect_identical(dim(GISSM_r5[["outcome"]]), c(2010L - sy, 3L))
   }
 
 
@@ -160,7 +174,7 @@ test_that("GISSM", {
   bad_simTime1 <- rSW2data::setup_time_simulation_run(
     sim_time = list(
       spinup_N = 0,
-      startyr = years[10],
+      startyr = years[[10]],
       endyr = years[length(years)]
     )
   )
