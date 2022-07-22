@@ -1,4 +1,4 @@
-# rSW2funs v0.1.3-9000
+# rSW2funs v0.1.3
 * Linting updated to `lintr` >= 3 and
   lint workflow switched from package tests to Github Action (#5).
 * Github Actions are triggered for `release/**` branches in addition to `main`.
