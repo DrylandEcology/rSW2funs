@@ -1,7 +1,7 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 
-# workflow derived from "check-standard" and "test-coverage" workflows
+# workflow derived from "check-standard" workflow
 
 # rSW2funs creates pdf vignette: these require a minimal latex setup
 
@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: [main, release/**]
 
-name: R-CMD-check-covr
+name: R-CMD-check
 
 jobs:
   R-CMD-check:
@@ -56,15 +56,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            any::rcmdcheck
-            any::covr
-          needs: |
-            check
-            coverage
+          extra-packages: any::rcmdcheck
+          needs: check
 
       - uses: r-lib/actions/check-r-package@v2
-
-      - name: Test coverage
-        run: covr::codecov(quiet = FALSE)
-        shell: Rscript {0}
