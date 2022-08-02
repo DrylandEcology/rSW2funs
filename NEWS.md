@@ -1,3 +1,6 @@
+# rSW2funs v0.2.0-9000
+
+
 # rSW2funs v0.1.3
 * Linting updated to `lintr` >= 3 and
   lint workflow switched from package tests to Github Action (#5).
