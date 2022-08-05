@@ -708,10 +708,20 @@ calc_SMTRs <- function(
         }
 
         sim_agg[["vwcmatric.dy.all"]] <- list(
-          val = slot(
-            slot(sim_out, rSW2_glovars[["swof"]][["sw_vwcmatric"]]),
-            "Day"
-          )
+          val = if (use_sw2_v6) {
+            rSOILWAT2::get_soilmoisture(
+              sim_out,
+              timestep = "Day",
+              type = "vwc_matric",
+              swInput = sim_in,
+              keep_time = TRUE
+            )
+          } else {
+            slot(
+              slot(sim_out, rSW2_glovars[["swof"]][["sw_vwcmatric"]]),
+              "Day"
+            )
+          }
         )
       }
 
