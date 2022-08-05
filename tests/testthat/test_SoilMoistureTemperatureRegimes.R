@@ -4,18 +4,18 @@ test_that("SMTR", {
   create_STR_expectation <- function(STRs) {
     tmp <- STR_names()
     stopifnot(STRs %in% tmp)
-    expected_STR <- rep(0, length(tmp))
+    expected_STR <- rep(0L, length(tmp))
     names(expected_STR) <- tmp
-    expected_STR[STRs] <- 1
+    expected_STR[STRs] <- 1L
     expected_STR
   }
 
   create_SMR_expectation <- function(SMRs) {
     tmp <- c(SMR_names(), SMRq_names())
     stopifnot(SMRs %in% tmp)
-    expected_SMR <- rep(0, length(tmp))
+    expected_SMR <- rep(0L, length(tmp))
     names(expected_SMR) <- tmp
-    expected_SMR[SMRs] <- 1
+    expected_SMR[SMRs] <- 1L
     expected_SMR
   }
 
@@ -34,8 +34,8 @@ test_that("SMTR", {
     all(colnames(SMTR1[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
   )
 
-  expect_true(all(SMTR1[["STR"]]) %in% c(0, 1))
-  expect_true(all(SMTR1[["SMR"]]) %in% c(0, 1))
+  expect_true(all(SMTR1[["STR"]]) %in% c(0L, 1L))
+  expect_true(all(SMTR1[["SMR"]]) %in% c(0L, 1L))
 
 
 
@@ -65,8 +65,8 @@ test_that("SMTR", {
       expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
     }
 
-    expect_equal(SMTR1[["STR"]], expected_STR, ignore_attr = TRUE)
-    expect_equal(SMTR1[["SMR"]], expected_SMR, ignore_attr = TRUE)
+    expect_identical(SMTR1[["STR"]][1L, , drop = TRUE], expected_STR)
+    expect_identical(SMTR1[["SMR"]][1L, , drop = TRUE], expected_SMR)
 
   } else {
     warning(

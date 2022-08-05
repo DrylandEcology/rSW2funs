@@ -386,7 +386,10 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
 #'
 #' @export
 calc_SMTRs <- function(
-  sim_in, sim_out = NULL, sim_agg = NULL, soil_TOC = NULL,
+  sim_in,
+  sim_out = NULL,
+  sim_agg = NULL,
+  soil_TOC = NULL,
   has_soil_temperature = TRUE,
   opt_SMTR = list(
     aggregate_at = "conditions",
@@ -394,8 +397,12 @@ calc_SMTRs <- function(
     use_normal = TRUE,
     SWP_dry = -1.5,
     SWP_sat = -0.033,
-    impermeability = 0.9),
-  simTime1 = NULL, simTime2 = NULL, verbose = FALSE, msg_tag = NULL
+    impermeability = 0.9
+  ),
+  simTime1 = NULL,
+  simTime2 = NULL,
+  verbose = FALSE,
+  msg_tag = NULL
 ) {
 
 
@@ -409,24 +416,31 @@ calc_SMTRs <- function(
     has_soil_temperature &&
     rSOILWAT2::swSite_SoilTemperatureFlag(sim_in)
 
+
+  #------ Prepare soil data
+
   soildat <- rSOILWAT2::swSoils_Layers(sim_in)
-  req_soilvars <- c("depth_cm", "sand_frac", "clay_frac", "impermeability_frac")
+  req_soilvars <- c(
+    "depth_cm", "sand_frac", "clay_frac", "impermeability_frac",
+    "gravel_content", "bulkDensity_g/cm^3"
+  )
   stopifnot(req_soilvars %in% colnames(soildat))
 
   n_soillayers <- NROW(soildat)
 
-  if (is.null(soil_TOC)) {
-    soil_TOC <- rep(0, n_soillayers)
-  }
 
+  # Pull all soil data together
   soildat <- cbind(
     soildat[, req_soilvars, drop = FALSE],
-    soil_TOC = soil_TOC
+    soil_TOC = if (is.null(soil_TOC)) {
+      rep(0, n_soillayers)
+    }
   )
 
   if (verbose) {
     layers_depth_old <- soildat[, "depth_cm"]
   }
+
 
   if (is.null(sim_agg)) {
     # we need simulation output object instead
@@ -440,7 +454,67 @@ calc_SMTRs <- function(
     }
   }
 
-  # Get time sequence information
+
+  #--- Deal with soil water retention curves (if available)
+  use_sw2_v6 <- getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")
+  has_swrc <- isTRUE(
+    try(
+      rSOILWAT2::get_version(sim_in) >= as.numeric_version("6.0.0"),
+      silent = TRUE
+    )
+  )
+
+  if (!use_sw2_v6 && has_swrc) {
+    stop(
+      "Available 'rSOILWAT2' is older than v6.0.0",
+      " and cannot handle 'sim_in' which is v6.0.0 or later."
+    )
+  }
+
+  if (use_sw2_v6 && !has_swrc) {
+    sim_in <- rSOILWAT2::sw_upgrade(sim_in, verbose = verbose)
+    has_swrc <- TRUE
+  }
+
+  use_swrc_v6 <- use_sw2_v6 && has_swrc
+
+  if (use_swrc_v6) {
+    swrc_flags <- rSOILWAT2::swSite_SWRCflags(sim_in)
+    has_active_pdf <-
+      rSOILWAT2::check_pdf_availability(swrc_flags[["pdf_name"]]) &&
+      swrc_flags[["pdf_name"]] != "NoPDF"
+
+    swrcp <- rSOILWAT2::swSoils_SWRCp(sim_in)
+    vars_swrcp <- colnames(swrcp)
+
+    if (anyNA(swrcp)) {
+      if (has_active_pdf) {
+        swrcp <- rSOILWAT2::pdf_estimate(
+          sand = soildat[, "sand_frac"],
+          clay = soildat[, "clay_frac"],
+          fcoarse = soildat[, "gravel_content"],
+          bdensity = soildat[, "bulkDensity_g/cm^3"],
+          swrc_name = swrc_flags[["swrc_name"]],
+          pdf_name = swrc_flags[["pdf_name"]]
+        )
+        colnames(swrcp) <- vars_swrcp
+
+      } else {
+        stop(
+          "Missing SWRC parameters and ",
+          "requested PDF ", shQuote(swrc_flags[["pdf_name"]]),
+          " is not available."
+        )
+      }
+    }
+
+  } else {
+    has_active_pdf <- FALSE
+  }
+
+
+
+  #------ Get time sequence information
   years <- seq(
     rSOILWAT2::swYears_StartYear(sim_in),
     rSOILWAT2::swYears_EndYear(sim_in)
@@ -645,11 +719,25 @@ calc_SMTRs <- function(
         sim_agg[["swpmatric.dy.all"]] <- list(
           val = cbind(
             sim_agg[["vwcmatric.dy.all"]][["val"]][, ihead],
-            rSOILWAT2::VWCtoSWP(
-              sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead],
-              sand = soildat[, "sand_frac"],
-              clay = soildat[, "clay_frac"]
-            )
+            if (use_swrc_v6) {
+              # `rSOILWAT2::swrc_vwc_to_swp()` expects bulk VWC`;
+              # however, `vwc` values here represent the matric component, i.e.,
+              # set `fcoarse` to zero
+              rSOILWAT2::swrc_vwc_to_swp(
+                sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead],
+                fcoarse = rep(0., nrow(soildat)),
+                swrc = list(
+                  swrc_name = swrc_flags[["swrc_name"]],
+                  swrcp = swrcp
+                )
+              )
+            } else {
+              rSOILWAT2::VWCtoSWP(
+                sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead],
+                sand = soildat[, "sand_frac"],
+                clay = soildat[, "clay_frac"]
+              )
+            }
           )
         )
       }
@@ -1080,8 +1168,31 @@ calc_SMTRs <- function(
               method = "interpolate"
             )
           )
+
+          if (use_swrc_v6 && !has_active_pdf) {
+            # Interpolate SWRCp because we don't have an active PDF
+            swrcp <- t(rSW2data::add_soil_layer(
+              x = t(swrcp),
+              target_cm = dadd,
+              depths_cm = prev_depths,
+              method = "interpolate"
+            ))
+          }
         }
 
+
+        if (length(depths_toadd) > 0L && use_swrc_v6 && has_active_pdf) {
+          # Re-estimate SWRCp from updated soil data
+          swrcp <- rSOILWAT2::pdf_estimate(
+            sand = soildat[, "sand_frac"],
+            clay = soildat[, "clay_frac"],
+            fcoarse = soildat[, "gravel_content"],
+            bdensity = soildat[, "bulkDensity_g/cm^3"],
+            swrc_name = swrc_flags[["swrc_name"]],
+            pdf_name = swrc_flags[["pdf_name"]]
+          )
+          colnames(swrcp) <- vars_swrcp
+        }
 
         soilLayers_N_NRCS <- dim(soildat)[[1]]
         soiltemp_nrsc <- lapply(soiltemp_nrsc, function(st) st[["data"]])
@@ -1105,15 +1216,30 @@ calc_SMTRs <- function(
           ))
         }
 
+        # Note: `soildat` and `swrcp` may contain additional layers
         swp_dy_nrsc <- if (
           swp_recalculate ||
           opt_SMTR[["aggregate_at"]] == "data"
         ) {
-          tmp <- rSOILWAT2::VWCtoSWP(
-            vwc_dy_nrsc[["val"]][, -ihead, drop = FALSE],
-            sand = soildat[, "sand_frac"],
-            clay = soildat[, "clay_frac"]
-          )
+          tmp <- if (use_swrc_v6) {
+            # `rSOILWAT2::swrc_vwc_to_swp()` expects bulk VWC`;
+            # however, `vwc` values here represent the matric component, i.e.,
+            # set `fcoarse` to zero
+            rSOILWAT2::swrc_vwc_to_swp(
+              vwc_dy_nrsc[["val"]][, -ihead, drop = FALSE],
+              fcoarse = rep(0., nrow(soildat)),
+              swrc = list(
+                swrc_name = swrc_flags[["swrc_name"]],
+                swrcp = swrcp
+              )
+            )
+          } else {
+            rSOILWAT2::VWCtoSWP(
+              vwc_dy_nrsc[["val"]][, -ihead, drop = FALSE],
+              sand = soildat[, "sand_frac"],
+              clay = soildat[, "clay_frac"]
+            )
+          }
 
           tmp[st_NRCS[["index_usedy"]], , drop = FALSE]
 
