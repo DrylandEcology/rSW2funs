@@ -480,12 +480,15 @@ calc_SMTRs <- function(
 
   if (use_swrc_v6) {
     swrc_flags <- rSOILWAT2::swSite_SWRCflags(sim_in)
-    has_active_pdf <-
-      rSOILWAT2::check_pdf_availability(swrc_flags[["pdf_name"]]) &&
-      swrc_flags[["pdf_name"]] != "NoPDF"
+    has_active_pdf <- isTRUE(rSOILWAT2::check_pdf_availability(
+      swrc_flags[["pdf_name"]]
+    ))
 
-    swrcp <- rSOILWAT2::swSoils_SWRCp(sim_in)
-    vars_swrcp <- colnames(swrcp)
+    swrcp <- if (rSOILWAT2::swSite_hasSWRCp(sim_in)) {
+      rSOILWAT2::swSoils_SWRCp(sim_in)
+    } else {
+      NA
+    }
 
     if (anyNA(swrcp)) {
       if (has_active_pdf) {
@@ -495,9 +498,9 @@ calc_SMTRs <- function(
           fcoarse = soildat[, "gravel_content"],
           bdensity = soildat[, "bulkDensity_g/cm^3"],
           swrc_name = swrc_flags[["swrc_name"]],
-          pdf_name = swrc_flags[["pdf_name"]]
+          pdf_name = swrc_flags[["pdf_name"]],
+          fail = TRUE
         )
-        colnames(swrcp) <- vars_swrcp
 
       } else {
         stop(
@@ -1201,7 +1204,6 @@ calc_SMTRs <- function(
             swrc_name = swrc_flags[["swrc_name"]],
             pdf_name = swrc_flags[["pdf_name"]]
           )
-          colnames(swrcp) <- vars_swrcp
         }
 
         soilLayers_N_NRCS <- dim(soildat)[[1]]
