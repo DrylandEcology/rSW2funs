@@ -480,8 +480,8 @@ calc_SMTRs <- function(
 
   if (use_swrc_v6) {
     swrc_flags <- rSOILWAT2::swSite_SWRCflags(sim_in)
-    has_active_pdf <- isTRUE(rSOILWAT2::check_pdf_availability(
-      swrc_flags[["pdf_name"]]
+    has_active_ptf <- isTRUE(rSOILWAT2::check_ptf_availability(
+      swrc_flags[["ptf_name"]]
     ))
 
     swrcp <- if (rSOILWAT2::swSite_hasSWRCp(sim_in)) {
@@ -491,28 +491,28 @@ calc_SMTRs <- function(
     }
 
     if (anyNA(swrcp)) {
-      if (has_active_pdf) {
-        swrcp <- rSOILWAT2::pdf_estimate(
+      if (has_active_ptf) {
+        swrcp <- rSOILWAT2::ptf_estimate(
           sand = soildat[, "sand_frac"],
           clay = soildat[, "clay_frac"],
           fcoarse = soildat[, "gravel_content"],
           bdensity = soildat[, "bulkDensity_g/cm^3"],
           swrc_name = swrc_flags[["swrc_name"]],
-          pdf_name = swrc_flags[["pdf_name"]],
+          ptf_name = swrc_flags[["ptf_name"]],
           fail = TRUE
         )
 
       } else {
         stop(
           "Missing SWRC parameters and ",
-          "requested PDF ", shQuote(swrc_flags[["pdf_name"]]),
+          "requested PTF ", shQuote(swrc_flags[["ptf_name"]]),
           " is not available."
         )
       }
     }
 
   } else {
-    has_active_pdf <- FALSE
+    has_active_ptf <- FALSE
   }
 
 
@@ -1182,8 +1182,8 @@ calc_SMTRs <- function(
             )
           )
 
-          if (use_swrc_v6 && !has_active_pdf) {
-            # Interpolate SWRCp because we don't have an active PDF
+          if (use_swrc_v6 && !has_active_ptf) {
+            # Interpolate SWRCp because we don't have an active PTF
             swrcp <- t(rSW2data::add_soil_layer(
               x = t(swrcp),
               target_cm = dadd,
@@ -1194,15 +1194,15 @@ calc_SMTRs <- function(
         }
 
 
-        if (length(depths_toadd) > 0L && use_swrc_v6 && has_active_pdf) {
+        if (length(depths_toadd) > 0L && use_swrc_v6 && has_active_ptf) {
           # Re-estimate SWRCp from updated soil data
-          swrcp <- rSOILWAT2::pdf_estimate(
+          swrcp <- rSOILWAT2::ptf_estimate(
             sand = soildat[, "sand_frac"],
             clay = soildat[, "clay_frac"],
             fcoarse = soildat[, "gravel_content"],
             bdensity = soildat[, "bulkDensity_g/cm^3"],
             swrc_name = swrc_flags[["swrc_name"]],
-            pdf_name = swrc_flags[["pdf_name"]]
+            ptf_name = swrc_flags[["ptf_name"]]
           )
         }
 

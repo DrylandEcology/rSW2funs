@@ -164,10 +164,10 @@ test_that("SMTR", {
   if (getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")) {
 
     #--- Set PDF from (default) Cosby1984AndOthers to Cosby1984
-    # (avoid swc-sat complications for tests with unset `pdf_name`)
+    # (avoid swc-sat complications for tests with unset `ptf_name`)
     # (default `has_swrcp` is FALSE)
     sw_in3 <- sw_in2
-    rSOILWAT2::swSite_SWRCflags(sw_in3)[["pdf_name"]] <- "Cosby1984"
+    rSOILWAT2::swSite_SWRCflags(sw_in3)[["ptf_name"]] <- "Cosby1984"
     rSOILWAT2::swSite_hasSWRCp(sw_in3) <- FALSE
 
 
@@ -186,12 +186,12 @@ test_that("SMTR", {
     sw_in_swrc <- sw_in3
     soils <- rSOILWAT2::swSoils_Layers(sw_in_swrc)
 
-    swrcp <- rSOILWAT2::pdf_estimate(
+    swrcp <- rSOILWAT2::ptf_estimate(
       sand = soils[, "sand_frac"],
       clay = soils[, "clay_frac"],
       fcoarse = soils[, "gravel_content"],
       bdensity = soils[, "bulkDensity_g/cm^3"],
-      pdf_name = rSOILWAT2::swSite_SWRCflags(sw_in_swrc)[["pdf_name"]]
+      ptf_name = rSOILWAT2::swSite_SWRCflags(sw_in_swrc)[["ptf_name"]]
     )
 
 
@@ -214,7 +214,7 @@ test_that("SMTR", {
     #--- Check not-implemented PDF but with swrcp/has_swrcp ------
     # (`calc_SMTRs()` cannot re-estimate SWRCp for additional soil layers
     # and interpolates instead)
-    rSOILWAT2::swSite_SWRCflags(sw_in_swrc)[["pdf_name"]] <-
+    rSOILWAT2::swSite_SWRCflags(sw_in_swrc)[["ptf_name"]] <-
       "IsCosby1984ButDontUseIt"
     rSOILWAT2::swSite_hasSWRCp(sw_in_swrc) <- TRUE
     rSOILWAT2::swSoils_SWRCp(sw_in_swrc) <- swrcp
