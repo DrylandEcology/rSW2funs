@@ -1,26 +1,41 @@
 
 test_that("SMTR", {
-  #--- Expectations
+  compare_smtrs <- function(target, current, tol_cond_annual = 0.1) {
+    for (kn in names(target)) {
+      if (kn == "cond_annual") {
+        # Small deviations in annual values
+        expect_equal(
+          target[[!!kn]],
+          current[[!!kn]],
+          tolerance = tol_cond_annual
+        )
+      } else {
+        expect_identical(target[[!!kn]], current[[!!kn]])
+      }
+    }
+  }
+
+  #--- Expectations ------
   create_STR_expectation <- function(STRs) {
     tmp <- STR_names()
     stopifnot(STRs %in% tmp)
-    expected_STR <- rep(0, length(tmp))
+    expected_STR <- rep(0L, length(tmp))
     names(expected_STR) <- tmp
-    expected_STR[STRs] <- 1
+    expected_STR[STRs] <- 1L
     expected_STR
   }
 
   create_SMR_expectation <- function(SMRs) {
     tmp <- c(SMR_names(), SMRq_names())
     stopifnot(SMRs %in% tmp)
-    expected_SMR <- rep(0, length(tmp))
+    expected_SMR <- rep(0L, length(tmp))
     names(expected_SMR) <- tmp
-    expected_SMR[SMRs] <- 1
+    expected_SMR[SMRs] <- 1L
     expected_SMR
   }
 
 
-  #--- Check with rSOILWAT2 example data
+  #--- Check with rSOILWAT2 example data ------
   sw_in <- rSOILWAT2::sw_exampleData
   sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
 
@@ -34,12 +49,12 @@ test_that("SMTR", {
     all(colnames(SMTR1[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
   )
 
-  expect_true(all(SMTR1[["STR"]]) %in% c(0, 1))
-  expect_true(all(SMTR1[["SMR"]]) %in% c(0, 1))
+  expect_true(all(SMTR1[["STR"]]) %in% c(0L, 1L))
+  expect_true(all(SMTR1[["SMR"]]) %in% c(0L, 1L))
 
 
 
-  # Compare against latest rSOILWAT2 version that changed STMR output
+  # Compare against latest rSOILWAT2 version that changed STMR output ------
   tmpv <- c("5.0.0", "5.1.0")
 
   compv <- vapply(
@@ -65,8 +80,8 @@ test_that("SMTR", {
       expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
     }
 
-    expect_equal(SMTR1[["STR"]], expected_STR, ignore_attr = TRUE)
-    expect_equal(SMTR1[["SMR"]], expected_SMR, ignore_attr = TRUE)
+    expect_identical(SMTR1[["STR"]][1L, , drop = TRUE], expected_STR)
+    expect_identical(SMTR1[["SMR"]][1L, , drop = TRUE], expected_SMR)
 
   } else {
     warning(
@@ -76,7 +91,7 @@ test_that("SMTR", {
   }
 
 
-  #--- Check with insufficient soil layers (add and recalculate)
+  #--- Check with insufficient soil layers (add and recalculate) ------
   sw_in2 <- sw_in
 
   # Dissolve soil layers
@@ -129,20 +144,91 @@ test_that("SMTR", {
   colnames(xsoils2) <- colnames(rSOILWAT2::swSoils_Layers(sw_in2))
   rSOILWAT2::swSoils_Layers(sw_in2) <- data.matrix(xsoils2)
 
-  #---
-  sw_out2 <- rSOILWAT2::sw_exec(inputData = sw_in2)
 
+  #--- Expect warning about additional soil layers
   expect_output(
-    SMTR2 <- calc_SMTRs(sim_in = sw_in2, sim_out = sw_out2, verbose = TRUE)
+    SMTR2 <- calc_SMTRs(
+      sim_in = sw_in2,
+      sim_out = rSOILWAT2::sw_exec(inputData = sw_in2),
+      verbose = TRUE
+    )
   )
 
-  for (kn in names(SMTR1)) {
-    if (kn == "cond_annual") {
-      # Small deviations in annual values due to interpolation of soil layers
-      expect_equal(SMTR2[[kn]], SMTR1[[kn]], tolerance = 0.1)
-    } else {
-      # do not affect outcomes
-      expect_identical(SMTR2[[kn]], SMTR1[[kn]])
-    }
+
+  # Expect similar values to full set of soil layers
+  # * Small deviations in annual values due to interpolation of soil layers
+  compare_smtrs(SMTR2, SMTR1)
+
+
+  #--- Check different SWRC/PDF options (if available) ------
+  if (getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")) {
+
+    #--- Set PDF from (default) Cosby1984AndOthers to Cosby1984
+    # (avoid swc-sat complications for tests with unset `ptf_name`)
+    # (default `has_swrcp` is FALSE)
+    sw_in3 <- sw_in2
+    rSOILWAT2::swSite_SWRCflags(sw_in3)[["ptf_name"]] <- "Cosby1984"
+    rSOILWAT2::swSite_hasSWRCp(sw_in3) <- FALSE
+
+
+    # Reference output (that requires additional soil layers) for next tests
+    SMTR3 <- calc_SMTRs(
+      sim_in = sw_in3,
+      sim_out = rSOILWAT2::sw_exec(inputData = sw_in3)
+    )
+
+    # Expect similar values to default PDF of "Cosby1984AndOthers"
+    # * Small deviations in annual values due to different swc-sat
+    compare_smtrs(SMTR3, SMTR2)
+
+
+    #--- Prepare test for different PDF options
+    sw_in_swrc <- sw_in3
+    soils <- rSOILWAT2::swSoils_Layers(sw_in_swrc)
+
+    swrcp <- rSOILWAT2::ptf_estimate(
+      sand = soils[, "sand_frac"],
+      clay = soils[, "clay_frac"],
+      fcoarse = soils[, "gravel_content"],
+      bdensity = soils[, "bulkDensity_g/cm^3"],
+      ptf_name = rSOILWAT2::swSite_SWRCflags(sw_in_swrc)[["ptf_name"]]
+    )
+
+
+    #--- Check active PDF (default) with swrcp (has_swrcp, non-default) ------
+    # (`calc_SMTRs()` re-estimates SWRCp for additional soil layers)
+    rSOILWAT2::swSite_hasSWRCp(sw_in_swrc) <- TRUE
+    rSOILWAT2::swSoils_SWRCp(sw_in_swrc) <- swrcp
+
+    # Expect identical to `SMTR3`
+    expect_equal(
+      calc_SMTRs(
+        sim_in = sw_in_swrc,
+        sim_out = rSOILWAT2::sw_exec(inputData = sw_in_swrc)
+      ),
+      SMTR3,
+      tolerance = sqrt(.Machine[["double.eps"]])
+    )
+
+
+    #--- Check not-implemented PDF but with swrcp/has_swrcp ------
+    # (`calc_SMTRs()` cannot re-estimate SWRCp for additional soil layers
+    # and interpolates instead)
+    rSOILWAT2::swSite_SWRCflags(sw_in_swrc)[["ptf_name"]] <-
+      "IsCosby1984ButDontUseIt"
+    rSOILWAT2::swSite_hasSWRCp(sw_in_swrc) <- TRUE
+    rSOILWAT2::swSoils_SWRCp(sw_in_swrc) <- swrcp
+
+
+    # Expect similar but not identical to `SMTR3`
+    # * Small deviations in annual values due to interpolation of soil layers
+    compare_smtrs(
+      calc_SMTRs(
+        sim_in = sw_in_swrc,
+        sim_out = rSOILWAT2::sw_exec(inputData = sw_in_swrc)
+      ),
+      SMTR3,
+      tol_cond_annual = 0.01
+    )
   }
 })
