@@ -160,6 +160,27 @@ test_that("SMTR", {
   compare_smtrs(SMTR2, SMTR1)
 
 
+  #--- Check with one soil layer ------
+  sw_in <- rSOILWAT2::sw_exampleData
+  rSOILWAT2::swSoils_Layers(sw_in) <-
+    rSOILWAT2::swSoils_Layers(sw_in)[1, , drop = FALSE]
+  sw_out <- rSOILWAT2::sw_exec(inputData = sw_in, quiet = TRUE)
+
+  SMTRs1 <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
+
+  expect_true(SMTRs1[["regimes_done"]])
+
+  expect_true(all(colnames(SMTRs1[["STR"]]) %in% STR_names()))
+
+  expect_true(
+    all(colnames(SMTRs1[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
+  )
+
+  expect_true(all(SMTRs1[["STR"]]) %in% c(0L, 1L))
+  expect_true(all(SMTRs1[["SMR"]]) %in% c(0L, 1L))
+
+
+
   #--- Check different SWRC/PDF options (if available) ------
   if (getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")) {
 

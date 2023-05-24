@@ -731,13 +731,13 @@ calc_SMTRs <- function(
       if (!exists("swpmatric.dy.all", where = sim_agg)) {
         sim_agg[["swpmatric.dy.all"]] <- list(
           val = cbind(
-            sim_agg[["vwcmatric.dy.all"]][["val"]][, ihead],
+            sim_agg[["vwcmatric.dy.all"]][["val"]][, ihead, drop = FALSE],
             if (use_swrc_v6) {
               # `rSOILWAT2::swrc_vwc_to_swp()` expects bulk VWC`;
               # however, `vwc` values here represent the matric component, i.e.,
               # set `fcoarse` to zero
               rSOILWAT2::swrc_vwc_to_swp(
-                sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead],
+                sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead, drop = FALSE],
                 fcoarse = rep(0., nrow(soildat)),
                 swrc = list(
                   swrc_name = swrc_flags[["swrc_name"]],
@@ -746,7 +746,7 @@ calc_SMTRs <- function(
               )
             } else {
               rSOILWAT2::VWCtoSWP(
-                sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead],
+                sim_agg[["vwcmatric.dy.all"]][["val"]][, -ihead, drop = FALSE],
                 sand = soildat[, "sand_frac"],
                 clay = soildat[, "clay_frac"]
               )
