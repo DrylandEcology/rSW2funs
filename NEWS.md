@@ -1,4 +1,4 @@
-# rSW2funs v0.2.0-9000
+# rSW2funs v0.2.0
 * `rSW2funs` now uses new soil water retention curve `SWRC` functionality
   if `rSOILWAT2` v6.0.0 or later is available and uses the old interface
   if `rSOILWAT2` earlier than v6.0.0; affected functions: `calc_SMTRs()`
