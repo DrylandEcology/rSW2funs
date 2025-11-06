@@ -2,8 +2,8 @@
 % Please edit documentation in R/rSW2funs-package.R
 \docType{package}
 \name{rSW2funs}
-\alias{rSW2funs}
 \alias{rSW2funs-package}
+\alias{rSW2funs}
 \title{\pkg{rSW2funs}: Collection of functions that calculate new variables
 using rSOILWAT2 simulation output.}
 \description{
