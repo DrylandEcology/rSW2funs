@@ -87,17 +87,17 @@ test_data <- list(
     ref = rep(0L, 10)
   ),
   test4 = list(
-    ttg = temp <- c(2, NA, 1),
+    ttg = temp <- c(2, NA, 1), # nolint: implicit_assignment_linter.
     dfc = temp,
     ref = c(1L, 0L)
   ),
   test5 = list(
-    ttg = temp <- c(2, rep(NA, 10), 1),
+    ttg = temp <- c(2, rep(NA, 10), 1), # nolint: implicit_assignment_linter.
     dfc = temp,
     ref = c(10L, 0L)
   ),
   test6 = list(
-    ttg = temp <- c(3, NA, NA, 2, NA, 1),
+    ttg = temp <- c(3, NA, NA, 2, NA, 1), # nolint: implicit_assignment_linter.
     dfc = temp,
     ref = c(3L, 1L, 0L)
   ),
@@ -116,7 +116,7 @@ test_data <- list(
 
 test_that("germination_wait_times", {
 
-  for (k in seq_along(test_data))
+  for (k in seq_along(test_data)) {
     expect_identical(
       as.integer(
         GISSM_germination_wait_times(
@@ -127,22 +127,23 @@ test_that("germination_wait_times", {
       test_data[[k]][["ref"]],
       info = paste("Test dataset =", shQuote(names(test_data)[k]))
     )
+  }
 
 
-  if (FALSE) {
+  if (FALSE) { # nolint: unreachable_code_linter.
     for (k in seq_along(test_data)[-1]) {
-      print(paste("Test =", k, "with dataset =", shQuote(names(test_data)[k])))
-      print(paste("ttg =", toString(test_data[[k]][["ttg"]])))
-      print(paste("dfc =", toString(test_data[[k]][["dfc"]])))
-      print(paste("ref =", toString(test_data[[k]][["ref"]])))
+      cat("Test =", k, "with dataset =", shQuote(names(test_data)[k]))
+      cat("ttg =", toString(test_data[[k]][["ttg"]]))
+      cat("dfc =", toString(test_data[[k]][["dfc"]]))
+      cat("ref =", toString(test_data[[k]][["ref"]]))
       out <- as.integer(
         GISSM_germination_wait_times(
           time_to_germinate = test_data[[k]][["ttg"]],
           duration_fave_cond = test_data[[k]][["dfc"]]
         )
       )
-      print(paste("out =", toString(out)))
-      print("")
+      cat("out =", toString(out))
+      cat("")
     }
   }
 

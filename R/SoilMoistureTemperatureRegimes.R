@@ -76,16 +76,16 @@ STR_logic <- function(MAST, MSST, SatSoilSummer_days, has_permafrost,
   names(Tregime) <- tmp
 
   if (anyNA(MAST) || anyNA(has_permafrost)) {
-    Tregime[] <- NA # nolint: extraction_operator_linter.
+    Tregime[] <- NA
     return(Tregime)
   }
 
   if (MAST >= 22) {
-      Tregime[["Hyperthermic"]] <- 1L
+    Tregime[["Hyperthermic"]] <- 1L
   } else if (MAST >= 15) {
-      Tregime[["Thermic"]] <- 1L
+    Tregime[["Thermic"]] <- 1L
   } else if (MAST >= 8) {
-      Tregime[["Mesic"]] <- 1L
+    Tregime[["Mesic"]] <- 1L
 
   } else if (MAST > 0 && !has_permafrost) {
     if (any(anyNA(SatSoilSummer_days), anyNA(has_Ohorizon), anyNA(MSST))) {
@@ -103,28 +103,24 @@ STR_logic <- function(MAST, MSST, SatSoilSummer_days, has_permafrost,
         } else {
           Tregime[["Frigid"]] <- 1L
         }
+      } else if (MSST < 13) {
+        Tregime[["Cryic"]] <- 1L
       } else {
-        if (MSST < 13) {
-          Tregime[["Cryic"]] <- 1L
-        } else {
-          Tregime[["Frigid"]] <- 1L
-        }
+        Tregime[["Frigid"]] <- 1L
       }
 
     } else {
       # "not saturated with water during some part of the summer"
-      if (has_Ohorizon) {
+      if (has_Ohorizon) { # nolint: unnecessary_nesting_linter.
         if (MSST < 8) {
           Tregime[["Cryic"]] <- 1L
         } else {
           Tregime[["Frigid"]] <- 1L
         }
+      } else if (MSST < 15) {
+        Tregime[["Cryic"]] <- 1L
       } else {
-        if (MSST < 15) {
-          Tregime[["Cryic"]] <- 1L
-        } else {
-          Tregime[["Frigid"]] <- 1L
-        }
+        Tregime[["Frigid"]] <- 1L
       }
     }
     # TODO: else organic soils: cryic if mean(T50jja) > 0 C and < 6 C
@@ -147,7 +143,8 @@ STR_logic <- function(MAST, MSST, SatSoilSummer_days, has_permafrost,
 #'   12th ed. USDA Natural Resources Conservation Service, Washington, DC.
 #'
 #' @keywords internal
-SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
+SMR_logic <- function(
+  ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
   MCS_COND1, MCS_COND2, MCS_COND2_1, MCS_COND2_2, MCS_COND2_3, MCS_COND3,
   MCS_COND3_1, MCS_COND4, MCS_COND5, MCS_COND6, MCS_COND6_1, MCS_COND7,
   MCS_COND8, MCS_COND9, MCS_COND10, has_permafrost
@@ -218,7 +215,7 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
     }
 
   } else if (
-      MCS_COND3 &&
+    MCS_COND3 &&
       (!MCS_COND4 && MCS_COND5 && MCS_COND6 || (MCS_COND4 || !MCS_COND5))
   ) {
 
@@ -229,23 +226,21 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
     # Qualifier for udic SMR
     if (MCS_COND3_1) {
       Sregime[["Typic-Udic"]] <- 1L
-    } else if (!MCS_COND5) {
-      Sregime[["Dry-Tropudic"]] <- 1L
-    } else {
+    } else if (MCS_COND5) {
       Sregime[["Dry-Tempudic"]] <- 1L
+    } else {
+      Sregime[["Dry-Tropudic"]] <- 1L
     }
 
   } else if (
     !has_permafrost &&
-    !MCS_COND3 &&
-    (
-      (MCS_COND4 || !MCS_COND5) &&
-      (MCS_COND7 || MCS_COND8) ||
-      !MCS_COND4 &&
-      MCS_COND5 &&
-      !MCS_COND1 &&
-      (MCS_COND9 && MCS_COND6 || !MCS_COND9)
-    )
+      !MCS_COND3 &&
+      (
+        (MCS_COND4 || !MCS_COND5) &&
+          (MCS_COND7 || MCS_COND8) ||
+          !MCS_COND4 && MCS_COND5 && !MCS_COND1 &&
+            (MCS_COND9 && MCS_COND6 || !MCS_COND9)
+      )
   ) {
 
     # Ustic soil moisture regime
@@ -257,17 +252,17 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
         # NOTE: this conditional assumes that 'MoistDaysConsecWinter' is
         # equivalent to jNSM variable 'nccm'
         Sregime[["Typic-Tempustic"]] <- 1L
-      } else if (!MCS_COND6) {
+      } else if (MCS_COND6) {
         # NOTE: this conditional assumes that 'DryDaysConsecSummer' is
         # equivalent to jNSM variable 'nccd'
-        Sregime[["Xeric-Tempustic"]] <- 1L
-      } else {
         Sregime[["Wet-Tempustic"]] <- 1L
+      } else {
+        Sregime[["Xeric-Tempustic"]] <- 1L
       }
     } else {
       # NOTE: COND2_1 and COND2_2: assume that 'MaxContDaysAnyMoistCumAbove8'
       # is equivalent to jNSM variable 'ncpm[[2]]'
-      if (MCS_COND2_1) {
+      if (MCS_COND2_1) { # nolint: unnecessary_nesting_linter.
         Sregime[["Aridic-Tropustic"]] <- 1L
       } else if (MCS_COND2_2) {
         Sregime[["Typic-Tropustic"]] <- 1L
@@ -406,8 +401,6 @@ calc_SMTRs <- function(
   verbose = FALSE,
   msg_tag = NULL
 ) {
-
-
   #--- Check arguments
   opt_SMTR[["aggregate_at"]] <- match.arg(
     opt_SMTR[["aggregate_at"]],
@@ -451,7 +444,8 @@ calc_SMTRs <- function(
     if (is.null(sim_out)) {
       stop(
         "We need simulation output either `sim_out` or already ",
-        "aggregated `sim_agg`."
+        "aggregated `sim_agg`.",
+        call. = FALSE
       )
     }
   }
@@ -469,7 +463,8 @@ calc_SMTRs <- function(
   if (!use_sw2_v6 && has_swrc) {
     stop(
       "Available 'rSOILWAT2' is older than v6.0.0",
-      " and cannot handle 'sim_in' which is v6.0.0 or later."
+      " and cannot handle 'sim_in' which is v6.0.0 or later.",
+      call. = FALSE
     )
   }
 
@@ -482,41 +477,39 @@ calc_SMTRs <- function(
 
   if (use_swrc_v6) {
     swrc_flags <- rSOILWAT2::swSite_SWRCflags(sim_in)
-    has_active_ptf <- isTRUE(rSOILWAT2::check_ptf_availability(
-      swrc_flags[["ptf_name"]]
-    ))
+    has_active_ptf <- isTRUE(
+      rSOILWAT2::check_ptf_availability(swrc_flags[["ptf_name"]])
+    )
 
-    swrcp <- if (rSOILWAT2::swSite_hasSWRCp(sim_in)) {
-      rSOILWAT2::swSoils_SWRCp(sim_in)
+    if (rSOILWAT2::swSite_hasSWRCp(sim_in)) {
+      swrcp <- rSOILWAT2::swSoils_SWRCp(sim_in)
     } else {
-      NA
+      swrcp <- NA
     }
 
     if (anyNA(swrcp)) {
-      if (has_active_ptf) {
-        swrcp <- rSOILWAT2::ptf_estimate(
-          sand = soildat[, "sand_frac"],
-          clay = soildat[, "clay_frac"],
-          fcoarse = soildat[, "gravel_content"],
-          bdensity = soildat[, "bulkDensity_g/cm^3"],
-          swrc_name = swrc_flags[["swrc_name"]],
-          ptf_name = swrc_flags[["ptf_name"]],
-          fail = TRUE
-        )
-
-      } else {
+      if (!has_active_ptf) {
         stop(
           "Missing SWRC parameters and ",
           "requested PTF ", shQuote(swrc_flags[["ptf_name"]]),
-          " is not available."
+          " is not available.",
+          call. = FALSE
         )
       }
-    }
 
+      swrcp <- rSOILWAT2::ptf_estimate(
+        sand = soildat[, "sand_frac"],
+        clay = soildat[, "clay_frac"],
+        fcoarse = soildat[, "gravel_content"],
+        bdensity = soildat[, "bulkDensity_g/cm^3"],
+        swrc_name = swrc_flags[["swrc_name"]],
+        ptf_name = swrc_flags[["ptf_name"]],
+        fail = TRUE
+      )
+    }
   } else {
     has_active_ptf <- FALSE
   }
-
 
 
   #------ Get time sequence information
@@ -651,7 +644,8 @@ calc_SMTRs <- function(
       if (!inherits(sim_out, "swOutput")) {
         stop(
           "`sim_out` is not 'rSOILWAT2' output ",
-          "and 'soiltemp.dy.all' does not exist in `sim_agg`."
+          "and 'soiltemp.dy.all' does not exist in `sim_agg`.",
+          call. = FALSE
         )
       }
 
@@ -667,7 +661,7 @@ calc_SMTRs <- function(
 
     if (
       !anyNA(sim_agg[["soiltemp.dy.all"]][["val"]]) &&
-      all(sim_agg[["soiltemp.dy.all"]][["val"]][, -ihead] < 100)
+        all(sim_agg[["soiltemp.dy.all"]][["val"]][, -ihead] < 100)
     ) {
 
       SMTR[["has_realistic_SoilTemp"]] <- 1
@@ -676,7 +670,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'soiltemp.yr.all' does not exist in `sim_agg`."
+            "and 'soiltemp.yr.all' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -692,7 +687,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'soiltemp.mo.all' does not exist in `sim_agg`."
+            "and 'soiltemp.mo.all' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -708,7 +704,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'vwcmatric.dy.all' does not exist in `sim_agg`."
+            "and 'vwcmatric.dy.all' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -761,7 +758,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'prcp.yr' does not exist in `sim_agg`."
+            "and 'prcp.yr' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -778,7 +776,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'prcp.mo' does not exist in `sim_agg`."
+            "and 'prcp.mo' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -795,7 +794,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'pet.mo' does not exist in `sim_agg`."
+            "and 'pet.mo' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -810,7 +810,8 @@ calc_SMTRs <- function(
         if (!inherits(sim_out, "swOutput")) {
           stop(
             "`sim_out` is not 'rSOILWAT2' output ",
-            "and 'temp.mo' does not exist in `sim_agg`."
+            "and 'temp.mo' does not exist in `sim_agg`.",
+            call. = FALSE
           )
         }
 
@@ -844,11 +845,12 @@ calc_SMTRs <- function(
         #     standard deviation of the long-term monthly precipitation for
         #     8 of the 12 months
         if (st1[["no.useyr"]] < 30) {
-          print(paste0(
+          cat(
             msg_tag, ": has only ", st1[["no.useyr"]], " years ",
             "of data; determination of normal years for NRCS soil moisture ",
-            "regimes should be based on >= 30 years."
-          ))
+            "regimes should be based on >= 30 years.",
+            sep = ""
+          )
         }
 
         MAP <- c(
@@ -858,7 +860,7 @@ calc_SMTRs <- function(
 
         normal1 <- as.vector(
           (sim_agg[["prcp.yr"]][["ppt"]] >= MAP[[1]] - MAP[[2]]) &
-          (sim_agg[["prcp.yr"]][["ppt"]] <= MAP[[1]] + MAP[[2]])
+            (sim_agg[["prcp.yr"]][["ppt"]] <= MAP[[1]] + MAP[[2]])
         )
 
         MMP <- tapply(
@@ -877,8 +879,9 @@ calc_SMTRs <- function(
           }
         )
 
+        yr_used <- wyears[normal1 & normal2]
         st_NRCS <- list(
-          yr_used = yr_used <- wyears[normal1 & normal2],
+          yr_used = yr_used,
           i_yr_used = findInterval(yr_used, wyears)
         )
 
@@ -981,7 +984,8 @@ calc_SMTRs <- function(
                 soiltemp_nrsc[["dy"]][["data"]],
                 by = list(tmp),
                 mean
-              )[, -1]},
+              )[, -1]
+            },
             nheader = soiltemp_nrsc[["dy"]][["nheader"]]
           )
         )
@@ -1129,16 +1133,16 @@ calc_SMTRs <- function(
       has_notenough_normalyears <- FALSE
       if (SMTR[["SMR_normalyears_N"]] > 0) {
 
-        SMTR[["cond_annual"]] <- SMTR[["cond_annual"]][
-          st_NRCS[["i_yr_used"]], , drop = FALSE]
+        SMTR[["cond_annual"]] <-
+          SMTR[["cond_annual"]][st_NRCS[["i_yr_used"]], , drop = FALSE]
 
         # Set soil depths and intervals accounting for shallow soil profiles:
         # Soil Survey Staff 2014: p.31)
-        depths_required <- sort(unique(c(
-          SMTR[["Fifty_depth"]],
-          SMTR[["MCS_depth"]],
-          SMTR[["Lanh_depth"]]
-        )))
+        depths_required <- sort(
+          unique(
+            c(SMTR[["Fifty_depth"]], SMTR[["MCS_depth"]], SMTR[["Lanh_depth"]])
+          )
+        )
 
         ## Calculate soil values at necessary depths using a weighted mean
         tmp <- depths_required %in% soildat[, "depth_cm"]
@@ -1213,7 +1217,7 @@ calc_SMTRs <- function(
 
         swp_recalculate <- length(depths_toadd) > 0
         if (swp_recalculate && verbose) {
-          print(paste0(
+          cat(
             msg_tag, ": interpolated soil layers for NRCS soil ",
             "regimes because of insufficient soil layers: ",
             "required would be {",
@@ -1226,14 +1230,14 @@ calc_SMTRs <- function(
             ),
             "} and available are {",
             toString(layers_depth_old),
-            "}"
-          ))
+            "}",
+            sep = ""
+          )
         }
 
         # Note: `soildat` and `swrcp` may contain additional layers
         swp_dy_nrsc <- if (
-          swp_recalculate ||
-          opt_SMTR[["aggregate_at"]] == "data"
+          swp_recalculate || opt_SMTR[["aggregate_at"]] == "data"
         ) {
           tmp <- if (use_swrc_v6) {
             # `rSOILWAT2::swrc_vwc_to_swp()` expects bulk VWC`;
@@ -1258,8 +1262,8 @@ calc_SMTRs <- function(
           tmp[st_NRCS[["index_usedy"]], , drop = FALSE]
 
         } else {
-          sim_agg[["swpmatric.dy.all"]][["val"]][
-            st_NRCS[["index_usedy"]], -ihead, drop = FALSE]
+          tmp <- sim_agg[["swpmatric.dy.all"]][["val"]]
+          tmp[st_NRCS[["index_usedy"]], -ihead, drop = FALSE]
         }
 
         #MCS (Soil Survey Staff 2014: p.29)
@@ -1295,22 +1299,18 @@ calc_SMTRs <- function(
         SMTR[["cond_annual"]][, "MAT50"] <-
           soiltemp_nrsc[["yr"]][, 1 + i_depth50]
 
-        tmp <- soiltemp_nrsc[["mo"]][, 2 + i_depth50][
-          st_NRCS[["month_ForMonth"]] %in% 6:8]
+        ids <- st_NRCS[["month_ForMonth"]] %in% 6:8
+        tmp <- soiltemp_nrsc[["mo"]][, 2 + i_depth50][ids]
 
-        SMTR[["cond_annual"]][, "T50jja"] <- apply(
-          matrix(tmp, ncol = st_NRCS[["N_yr_used"]]),
-          MARGIN = 2,
-          FUN = mean
+        SMTR[["cond_annual"]][, "T50jja"] <- colMeans(
+          matrix(tmp, ncol = st_NRCS[["N_yr_used"]])
         )
 
-        tmp <- soiltemp_nrsc[["mo"]][, 2 + i_depth50][
-          st_NRCS[["month_ForMonth"]] %in% c(12, 1:2)]
+        ids <- st_NRCS[["month_ForMonth"]] %in% c(12, 1:2)
+        tmp <- soiltemp_nrsc[["mo"]][, 2 + i_depth50][ids]
 
-        SMTR[["cond_annual"]][, "T50djf"] <- apply(
-          matrix(tmp, ncol = st_NRCS[["N_yr_used"]]),
-          MARGIN = 2,
-          FUN = mean
+        SMTR[["cond_annual"]][, "T50djf"] <- colMeans(
+          matrix(tmp, ncol = st_NRCS[["N_yr_used"]])
         )
 
         T50 <- soiltemp_nrsc[["dy"]][, 2 + i_depth50]
@@ -1333,8 +1333,8 @@ calc_SMTRs <- function(
         SMTR[["cond_annual"]][, "CSPartSummer"] <- vapply(
           st_NRCS[["yr_used"]],
           FUN = function(yr) {
-            tmp <- swp_dy_nrsc[wateryear_ForEachUsedDay_NSadj[
-              st_NRCS[["i_dy_used"]]] == yr & isummer, , drop = FALSE]
+            ids <- wateryear_ForEachUsedDay_NSadj[st_NRCS[["i_dy_used"]]] == yr
+            tmp <- swp_dy_nrsc[ids & isummer, , drop = FALSE]
 
             tmp <- apply(tmp, 1, function(x) all(x >= opt_SMTR[["SWP_sat"]]))
             rtmp <- rle(tmp)
@@ -1352,8 +1352,8 @@ calc_SMTRs <- function(
         days_saturated_layers <- vapply(
           st_NRCS[["yr_used"]],
           FUN = function(yr) {
-            tmp <- swp_dy_nrsc[wateryear_ForEachUsedDay_NSadj[
-              st_NRCS[["i_dy_used"]]] == yr, , drop = FALSE]
+            ids <- wateryear_ForEachUsedDay_NSadj[st_NRCS[["i_dy_used"]]] == yr
+            tmp <- swp_dy_nrsc[ids, , drop = FALSE]
 
             apply(tmp, 2, function(x) sum(x >= opt_SMTR[["SWP_sat"]]))
           },
@@ -1405,7 +1405,7 @@ calc_SMTRs <- function(
           FUN.VALUE = rep(NA_real_, 12L)
         )
 
-        veg_litter <- mean(apply(sweep(tmp, 2, veg_comp, "*"), 1, sum))
+        veg_litter <- mean(rowSums(sweep(tmp, 2, veg_comp, "*")))
 
         tmp <- sum(rSOILWAT2::swProd_Es_param_limit(sim_in) * veg_comp)
         crit_litter <- crit_Oh[[3]] * tmp
@@ -1424,10 +1424,10 @@ calc_SMTRs <- function(
 
         SMTR[["has_Ohorizon"]] <-
           (veg_litter >= crit_litter) &&
-          if (!is.finite(is_mineral_layer[[1]])) {
-            hasLotsTreeCover || hasLotsShrubCover
-          } else {
+          if (is.finite(is_mineral_layer[[1]])) {
             !is_mineral_layer[[1]]
+          } else {
+            hasLotsTreeCover || hasLotsShrubCover
           }
 
         #--- Soil temperature regime: based on Soil Survey Staff 2014
@@ -1470,11 +1470,14 @@ calc_SMTRs <- function(
           # Days are moists in half of the Lanh soil depth (not soil layers!)
           n_Lanh <- length(i_Lanh)
           width_Lanh <- diff(c(0, soildat[, "depth_cm"]))[i_Lanh]
+          # nolint start: unreachable_code_linter.
           if (FALSE) {
             stopifnot(
               sum(width_Lanh) ==
-              SMTR[["Lanh_depth"]][[2]] - SMTR[["Lanh_depth"]][[1]])
+                SMTR[["Lanh_depth"]][[2]] - SMTR[["Lanh_depth"]][[1]]
+            )
           }
+          # nolint end: unreachable_code_linter.
 
           tmp <- swp_dy_nrsc[, i_Lanh, drop = FALSE] > opt_SMTR[["SWP_dry"]]
           tmp <- tmp * matrix(
@@ -1534,7 +1537,7 @@ calc_SMTRs <- function(
           #   where MAST > 0 C
           ACS_CondsDF_yrs[["ACS_COND3"]] <-
             ACS_CondsDF_yrs[["ACS_HalfDryDaysCumAbove0C"]] >
-              0.5 * ACS_CondsDF_yrs[["ACS_SoilAbove0C"]]
+            0.5 * ACS_CondsDF_yrs[["ACS_SoilAbove0C"]]
 
 
           ACS_CondsDF3 <- as.matrix(ACS_CondsDF_yrs[, icols1a, drop = FALSE])
@@ -1610,7 +1613,7 @@ calc_SMTRs <- function(
           #TRUE =Soils are dry greater than 1/2 cumulative days/year
           MCS_CondsDF_yrs[["COND1"]] <-
             MCS_CondsDF_yrs[["DryDaysCumAbove5C"]] >
-              0.5 * MCS_CondsDF_yrs[["SoilAbove5C"]]
+            0.5 * MCS_CondsDF_yrs[["SoilAbove5C"]]
 
           # Cond2 - Moist in SOME or all parts for less than 90 CONSECUTIVE
           # days when the the soil temperature at a depth of 50cm is above 8C
@@ -1806,50 +1809,53 @@ calc_SMTRs <- function(
 
         } else {
           has_notenough_normalyears <- TRUE
-          SMTR[["SMR"]][] <- NA # nolint: extraction_operator_linter.
+          SMTR[["SMR"]][] <- NA
         }
 
       } else {
-        SMTR[["STR"]][] <- NA # nolint: extraction_operator_linter.
-        SMTR[["SMR"]][] <- NA # nolint: extraction_operator_linter.
+        SMTR[["STR"]][] <- NA
+        SMTR[["SMR"]][] <- NA
         has_notenough_normalyears <- TRUE
       }
 
       if (has_notenough_normalyears) {
-        if (verbose) {
-          print(paste0(
+        if (verbose) { # nolint: unnecessary_nesting_linter.
+          cat(
             msg_tag, ": number of normal years is ",
             SMTR[["SMR_normalyears_N"]], " which is insufficient to calculate ",
             "NRCS soil moisture",
             if (SMTR[["SMR_normalyears_N"]] <= 0) "/temperature",
-            " regimes."
-          ))
+            " regimes.",
+            sep = ""
+          )
         }
       }
 
     } else {
       if (verbose) {
-        print(paste0(
+        cat(
           msg_tag, ": has unrealistic soil temperature values: ",
-          "NRCS soil moisture/temperature regimes not calculated."
-        ))
+          "NRCS soil moisture/temperature regimes not calculated.",
+          sep = ""
+        )
       }
 
-      SMTR[["STR"]][] <- NA # nolint: extraction_operator_linter.
-      SMTR[["SMR"]][] <- NA # nolint: extraction_operator_linter.
+      SMTR[["STR"]][] <- NA
+      SMTR[["SMR"]][] <- NA
       SMTR[["has_realistic_SoilTemp"]] <- 0
     }
 
   } else {
     if (verbose) {
-      print(paste0(
+      cat(
         msg_tag, ": soil temperature module turned off but ",
-        "required for NRCS Soil Moisture/Temperature Regimes."
-      ))
+        "required for NRCS Soil Moisture/Temperature Regimes.",
+        sep = ""
+      )
     }
 
-    SMTR[["STR"]][] <- NA # nolint: extraction_operator_linter.
-    SMTR[["SMR"]][] <- NA # nolint: extraction_operator_linter.
+    SMTR[["STR"]][] <- NA
+    SMTR[["SMR"]][] <- NA
     SMTR[["has_simulated_SoilTemp"]] <- 0
   }
 
@@ -1942,10 +1948,9 @@ calc_RRs_Chambers2014 <- function(Tregime, Sregime, MAP_mm) {
 
   if (!all(is.na(Tregime)) && !all(is.na(Sregime))) {
     Table1 <- Chambers2014_Table1()
-    Type <- as.logical(
-      Tregime[Table1[, "STR"]]) &
-      as.logical(Sregime[Table1[, "SMR"]]
-    )
+    Type <- as.logical(Tregime[Table1[, "STR"]]) &
+      as.logical(Sregime[Table1[, "SMR"]])
+
     Characteristics <-
       MAP_mm >= Table1[, "MAP_low"] & MAP_mm <=  Table1[, "MAP_high"]
 
@@ -1964,7 +1969,7 @@ calc_RRs_Chambers2014 <- function(Tregime, Sregime, MAP_mm) {
     }
 
   } else {
-    resilience[] <- resistance[] <- NA # nolint: extraction_operator_linter.
+    resilience[] <- resistance[] <- NA
   }
 
   c(resilience = resilience, resistance = resistance)
@@ -2046,10 +2051,8 @@ calc_RRs_Maestas2016 <- function(Tregime, Sregime) {
   if (!all(is.na(Tregime)) && !all(is.na(Sregime))) {
     Table1 <- Maestas2016_Table1()
 
-    tmp <- as.logical(
-      Tregime[Table1[, "STR"]]) &
-      as.logical(Sregime[Table1[, "SMR"]]
-    )
+    tmp <- as.logical(Tregime[Table1[, "STR"]]) &
+      as.logical(Sregime[Table1[, "SMR"]])
 
     is_notRR <- !is.na(tmp) & !tmp
     if (any(is_notRR)) {

@@ -74,7 +74,7 @@ test_that("SMTR", {
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Xeric", "Typic-Xeric"))
 
-      } else if (eqv == "5.0.0") {
+    } else if (eqv == "5.0.0") {
       # rSOILWAT2 since v5.0.0
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
@@ -86,7 +86,8 @@ test_that("SMTR", {
   } else {
     warning(
       "Test expectations for STR/SMR have not yet been implemented using ",
-      "rSOILWAT2 v", rSOILWAT2::get_version(sw_out)
+      "rSOILWAT2 v", rSOILWAT2::get_version(sw_out),
+      call. = FALSE
     )
   }
 
@@ -104,7 +105,9 @@ test_that("SMTR", {
 
   if (is_rSW2_GE_v650) {
     idsTrCo <- grep("^TrCo_", colnames(xsoils))
-    colnames(xsoils)[idsTrCo] <- gsub("_", "", colnames(xsoils)[idsTrCo])
+    colnames(xsoils)[idsTrCo] <- gsub(
+      "_", "", colnames(xsoils)[idsTrCo], fixed = TRUE
+    )
   }
 
   colnames(xsoils) <- vapply(
@@ -161,7 +164,7 @@ test_that("SMTR", {
 
   #--- Expect warning about additional soil layers
   expect_output(
-    SMTR2 <- calc_SMTRs(
+    SMTR2 <- calc_SMTRs( # nolint: implicit_assignment_linter.
       sim_in = sw_in2,
       sim_out = rSOILWAT2::sw_exec(inputData = sw_in2),
       verbose = TRUE

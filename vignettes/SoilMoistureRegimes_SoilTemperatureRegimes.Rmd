@@ -34,107 +34,103 @@ vignette: >
 
 ## Load sufficiently recent versions of the packages rSOILWAT2 and rSW2funs
 ```{r message = FALSE, warning = FALSE}
-  stopifnot(
-    requireNamespace("rSOILWAT2"),
-    requireNamespace("rSW2funs")
-  )
+stopifnot(
+  requireNamespace("rSOILWAT2"),
+  requireNamespace("rSW2funs")
+)
 ```
 
 ## Load data and run rSOILWAT2 simulation
 ```{r, simulate}
-  # Load data for an example site: see ?rSOILWAT2::sw_exampleData
-  sw_in <- rSOILWAT2::sw_exampleData
-  # Run SOILWAT2 for the example site: see ?sw_exec
-  sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
+# Load data for an example site: see ?rSOILWAT2::sw_exampleData
+sw_in <- rSOILWAT2::sw_exampleData
+# Run SOILWAT2 for the example site: see ?sw_exec
+sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
 ```
 
 
 ## Calculate SMRs and STRs and underlying conditions for the example site
 ```{r, SMTRs, collapse = TRUE}
-  # For more information, see ?calc_SMTRs
-  SMTR <- rSW2funs::calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
+# For more information, see ?calc_SMTRs
+SMTR <- rSW2funs::calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
-  # Check that simulation was successful and regimes could be identified:
-  stopifnot(
-    as.logical(
-      SMTR[c(
-        "regimes_done",
-        "has_simulated_SoilTemp",
-        "has_realistic_SoilTemp"
-    )]),
-    SMTR[["SMR_normalyears_N"]] > 2
-  )
+# Check that simulation was successful and regimes could be identified:
+tmp <- c("regimes_done", "has_simulated_SoilTemp", "has_realistic_SoilTemp")
+stopifnot(
+  as.logical(SMTR[tmp]),
+  SMTR[["SMR_normalyears_N"]] > 2
+)
 
-  # Take average across years and select regimes with more than 90% agreement
-  crit_agree_frac <- 0.9
-  x <- SMTR[["cond_annual"]]
+# Take average across years and select regimes with more than 90% agreement
+crit_agree_frac <- 0.9
+x <- SMTR[["cond_annual"]]
 
-  # --> Soil temperature regime is "Cryic"
-  Tregime <- colMeans(SMTR[["STR"]]) >= crit_agree_frac
-  print(Tregime)
+# --> Soil temperature regime is "Cryic"
+Tregime <- colMeans(SMTR[["STR"]]) >= crit_agree_frac
+cat(names(Tregime)[Tregime])
 
-  # --> Soil moisture regime is "Ustic" / "Typic-Tempustic"
-  Sregime <- colMeans(SMTR[["SMR"]]) >= crit_agree_frac
-  print(Sregime)
+# --> Soil moisture regime is "Xeric" / "Typic-Xeric"
+Sregime <- colMeans(SMTR[["SMR"]]) >= crit_agree_frac
+cat(names(Sregime)[Sregime])
 ```
 
 
 ###  Explore the conditions that define the [cryic](#Cryic) STR:
 ```{r, cryic, collapse = TRUE}
-  # The STR of the example site is cryic because:
-  cryic <-
-    #   - there is no permafrost:
-    SMTR[["permafrost_yrs"]] == 0 &&
+# The STR of the example site is cryic because:
+cryic <-
+  #   - there is no permafrost:
+  SMTR[["permafrost_yrs"]] == 0 &&
 
-    #   - annual soil temperature at 50-cm depth is between 0 and 8 C:
-    mean(x[, "MAT50"] > 0 & x[, "MAT50"] < 8) >= crit_agree_frac &&
+  #   - annual soil temperature at 50-cm depth is between 0 and 8 C:
+  mean(x[, "MAT50"] > 0 & x[, "MAT50"] < 8) >= crit_agree_frac &&
 
-    #  - soil is not saturated with water during some part of the summer:
-    mean(x[, "CSPartSummer"] == 0) >= crit_agree_frac &&
+  #  - soil is not saturated with water during some part of the summer:
+  mean(x[, "CSPartSummer"] == 0) >= crit_agree_frac &&
 
-    #  - soil does not have an O-horizon:
-    !SMTR[["has_Ohorizon"]] &&
+  #  - soil does not have an O-horizon:
+  !SMTR[["has_Ohorizon"]] &&
 
-    #  - summer soil temperature at 50-cm depth is below 15 C:
-    mean(x[, "T50jja"] < 15) >= crit_agree_frac
+  #  - summer soil temperature at 50-cm depth is below 15 C:
+  mean(x[, "T50jja"] < 15) >= crit_agree_frac
 
-  print(cryic)
+print(cryic)
 ```
 
 
 ### Explore the conditions that define the [ustic](#ustic) SMR:
 ```{r, ustic, collapse = TRUE}
-  # The SMR of the example site is ustic because:
-  ustic <-
-    #   - there is no permafrost:
-    SMTR[["permafrost_yrs"]] == 0 &&
+# The SMR of the example site is ustic because:
+ustic <-
+  #   - there is no permafrost:
+  SMTR[["permafrost_yrs"]] == 0 &&
 
-    #   - moisture control section is not dry for less than 90 cumulative days
-    !(mean(x[, "COND3"]) >= crit_agree_frac) &&
+  #   - moisture control section is not dry for less than 90 cumulative days
+  mean(x[, "COND3"]) < crit_agree_frac &&
 
-    #   - annual soil temperature at 50-cm depth is not more than 22 C
-    !(mean(x[, "COND4"]) >= crit_agree_frac) &&
+  #   - annual soil temperature at 50-cm depth is not more than 22 C
+  mean(x[, "COND4"]) < crit_agree_frac &&
 
-    #   - soils are not completely dry for more than half the days of the year
-    #     when soil temperature ato 50-cm depth is more than 5 C
-    !(mean(x[, "COND1"]) >= crit_agree_frac) &&
+  #   - soils are not completely dry for more than half the days of the year
+  #     when soil temperature ato 50-cm depth is more than 5 C
+  mean(x[, "COND1"]) < crit_agree_frac &&
 
-    #   - soils are not moist for more than 45 consecutive days following
-    #     the winter soltice
-    !(mean(x[, "COND9"]) >= crit_agree_frac)
+  #   - soils are not moist for more than 45 consecutive days following
+  #     the winter soltice
+  mean(x[, "COND9"]) < crit_agree_frac
 
-  print(ustic)
+print(ustic)
 
-  # The SMR of the example site is typic-tempustic because:
-  typic_tempustic <-
-    #   - SMR is ustic
-    ustic &&
+# The SMR of the example site is typic-tempustic because:
+typic_tempustic <-
+  #   - SMR is ustic
+  ustic &&
 
-    #   - soils are not moist for more than 45 consecutive days following
-    #     the winter soltice
-    !(mean(x[, "COND9"]) >= crit_agree_frac)
+  #   - soils are not moist for more than 45 consecutive days following
+  #     the winter soltice
+  mean(x[, "COND9"]) < crit_agree_frac
 
-  print(typic_tempustic)
+print(typic_tempustic)
 ```
 
 
@@ -145,21 +141,21 @@ vignette: >
   (Maestas et al. 2016)^[\ref{def:Maestas2016}]^.
 
 ```{r, rr, collapse = TRUE}
-  # Determine resilience & resistance classes (sensu Chambers et al. 2014):
-  clim <- rSOILWAT2::calc_SiteClimate(
-    weatherList = rSOILWAT2::get_WeatherHistory(sw_in)
-  )
+# Determine resilience & resistance classes (sensu Chambers et al. 2014):
+clim <- rSOILWAT2::calc_SiteClimate(
+  weatherList = rSOILWAT2::get_WeatherHistory(sw_in)
+)
 
-  RR <- rSW2funs::calc_RRs_Chambers2014(
-    Tregime,
-    Sregime,
-    MAP_mm = 10 * clim[["MAP_cm"]]
-  )
-  print(RR)
+RR <- rSW2funs::calc_RRs_Chambers2014(
+  Tregime,
+  Sregime,
+  MAP_mm = 10 * clim[["MAP_cm"]]
+)
+print(RR)
 
-  # Determine resilience & resistance classes (sensu Maestas et al. 2016):
-  RR <- rSW2funs::calc_RRs_Maestas2016(Tregime, Sregime)
-  print(RR)
+# Determine resilience & resistance classes (sensu Maestas et al. 2016):
+RR <- rSW2funs::calc_RRs_Maestas2016(Tregime, Sregime)
+print(RR)
 ```
 
 
