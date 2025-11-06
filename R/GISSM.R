@@ -411,7 +411,8 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #' (Schlaepfer et al. 2014).
 #'
 #' @param x A named list or an object of
-#'   \pkg{rSOILWAT2} class \code{\linkS4class{swOutput}} with daily output.
+#'   \pkg{rSOILWAT2} class \code{\link[rSOILWAT2:swOutput-class]{swOutput}}
+#'   with daily output.
 #'   If \code{x} is a named list, then it must contain appropriate content for
 #'   \var{SWP_MPa}, \var{Snowpack_SWE_mm}, \var{air_Tmin_C}, \var{air_Tmax_C},
 #'   \var{air_Tmean_C}, \var{shallowsoil_Tmin_C}, \var{shallowsoil_Tmean_C},
@@ -427,7 +428,7 @@ parameters_GISSM_bigsagebrush <- function(...) {
 #' @param years A numeric vector or \code{NULL}. The sequence of simulated
 #'   calendar years.
 #'   extracted from \code{x}
-#'   if \pkg{rSOILWAT2} class \code{\linkS4class{swOutput}};
+#'   if \pkg{rSOILWAT2} class \code{\link[rSOILWAT2:swOutput-class]{swOutput}};
 #'   otherwise, required if \code{simTime1} is \code{NULL}.
 #' @param simTime1 A named list or \code{NULL}.
 #'   See \code{\link[rSW2data]{setup_time_simulation_run}}.

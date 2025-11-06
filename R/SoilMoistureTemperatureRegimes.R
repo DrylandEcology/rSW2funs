@@ -288,13 +288,15 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
 #' Calculations are based on SSS (2014, 2015) and explained in detail in the
 #' \code{vignette(
 #'   topic = "SoilMoistureRegimes_SoilTemperatureRegimes",
-#'   package = "rSOILWAT2"
+#'   package = "rSW2funs"
 #' )}.
 #'
-#' @param sim_in An object of class \code{\linkS4class{swInputData}}. The
-#'   \pkg{rSOILWAT2} simulation input.
-#' @param sim_out An object of class \code{\linkS4class{swOutput}}. The
-#'   \pkg{rSOILWAT2} simulation output. If \code{NULL} then \code{sim_agg}
+#' @param sim_in An object of class
+#' \code{\link[rSOILWAT2:swInputData-class]{swInputData}}.
+#' The \pkg{rSOILWAT2} simulation input.
+#' @param sim_out An object of class
+#'   \code{\link[rSOILWAT2:swOutput-class]{swOutput}}.
+#'   The \pkg{rSOILWAT2} simulation output. If \code{NULL} then \code{sim_agg}
 #'   must be provided instead.
 #' @param sim_agg A named list. The prepared \pkg{rSOILWAT2} simulation output.
 #'   If \code{NULL} then \code{sim_out} must be provided so that the elements
