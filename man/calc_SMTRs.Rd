@@ -124,7 +124,7 @@ Calculations are based on SSS (2014, 2015) and explained in detail in the
 \examples{
 sw_in <- rSOILWAT2::sw_exampleData
 sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
-SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
+SMTR <- rSW2funs::calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
 }
 \references{

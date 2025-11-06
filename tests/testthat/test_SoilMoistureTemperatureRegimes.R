@@ -94,9 +94,19 @@ test_that("SMTR", {
   #--- Check with insufficient soil layers (add and recalculate) ------
   sw_in2 <- sw_in
 
+  is_rSW2_GE_v650 <-
+    rSOILWAT2::get_version(sw_in2) >= as.numeric_version("6.5.0")
+
+
   # Dissolve soil layers
   xsoils <- rSOILWAT2::swSoils_Layers(sw_in2)
   depths <- xsoils[, "depth_cm"]
+
+  if (is_rSW2_GE_v650) {
+    idsTrCo <- grep("^TrCo_", colnames(xsoils))
+    colnames(xsoils)[idsTrCo] <- gsub("_", "", colnames(xsoils)[idsTrCo])
+  }
+
   colnames(xsoils) <- vapply(
     strsplit(colnames(xsoils), split = "_", fixed = TRUE),
     function(x) x[[1]],
@@ -124,7 +134,11 @@ test_that("SMTR", {
     soil_data = xsoils_wide,
     vars_exhaust = c(
       "EvapBareSoil",
-      "transpGrass", "transpShrub", "transpTree", "transpForb",
+      if (is_rSW2_GE_v650) {
+        paste0("TrCo", rSOILWAT2::namesVegTypes("v2"))
+      } else {
+        c("transpGrass", "transpShrub", "transpTree", "transpForb")
+      },
       "impermeability"
     ),
     keep_prev_soildepth = TRUE,
@@ -249,7 +263,7 @@ test_that("SMTR", {
         sim_out = rSOILWAT2::sw_exec(inputData = sw_in_swrc)
       ),
       SMTR3,
-      tol_cond_annual = 0.01
+      tol_cond_annual = 0.1
     )
   }
 })

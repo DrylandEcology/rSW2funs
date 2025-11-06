@@ -382,7 +382,7 @@ SMR_logic <- function(ACS_COND1, ACS_COND2, ACS_COND3, MCS_COND0,
 #' @examples
 #' sw_in <- rSOILWAT2::sw_exampleData
 #' sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
-#' SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
+#' SMTR <- rSW2funs::calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 #'
 #' @export
 calc_SMTRs <- function(
@@ -1388,13 +1388,19 @@ calc_SMTRs <- function(
         # TODO: guess (critical levels 'crit_Oh' are made up/not based on data):
         #       O-horizon if 50% trees or 75% shrubs or lots of litter
         crit_Oh <- c(0.5, 0.75, 0.8)
-        veg_comp <- rSOILWAT2::swProd_Composition(sim_in)[1:4]
 
-        tmp <- cbind(
-          rSOILWAT2::swProd_MonProd_grass(sim_in)[, "Litter"],
-          rSOILWAT2::swProd_MonProd_shrub(sim_in)[, "Litter"],
-          rSOILWAT2::swProd_MonProd_tree(sim_in)[, "Litter"],
-          rSOILWAT2::swProd_MonProd_forb(sim_in)[, "Litter"]
+        vts <- if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+          names(rSOILWAT2::namesVegTypes("v2"))
+        } else {
+          c("SW_GRASS", "SW_SHRUB", "SW_TREES", "SW_FORBS")
+        }
+
+        veg_comp <- rSOILWAT2::swProd_Composition(sim_in)[seq_along(vts)]
+
+        tmp <- vapply(
+          vts,
+          function(vt) rSOILWAT2::swProd_MonProd_veg(sim_in, vt)[, "Litter"],
+          FUN.VALUE = rep(NA_real_, 12L)
         )
 
         veg_litter <- mean(apply(sweep(tmp, 2, veg_comp, "*"), 1, sum))
@@ -1402,11 +1408,22 @@ calc_SMTRs <- function(
         tmp <- sum(rSOILWAT2::swProd_Es_param_limit(sim_in) * veg_comp)
         crit_litter <- crit_Oh[[3]] * tmp
 
+        hasLotsTreeCover <- if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+          (veg_comp[["treeNL"]] + veg_comp[["treeBL"]]) > crit_Oh[[1]]
+        } else {
+          veg_comp[["Trees"]] > crit_Oh[[1]]
+        }
+
+        hasLotsShrubCover <- if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+          veg_comp[["shrub"]] > crit_Oh[[1]]
+        } else {
+          veg_comp[["Shrubs"]] > crit_Oh[[1]]
+        }
+
         SMTR[["has_Ohorizon"]] <-
           (veg_litter >= crit_litter) &&
           if (!is.finite(is_mineral_layer[[1]])) {
-            veg_comp[["Trees"]] > crit_Oh[[1]] ||
-              veg_comp[["Shrubs"]] > crit_Oh[[2]]
+            hasLotsTreeCover || hasLotsShrubCover
           } else {
             !is_mineral_layer[[1]]
           }
