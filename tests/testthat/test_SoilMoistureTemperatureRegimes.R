@@ -137,7 +137,7 @@ test_that("SMTR", {
     soil_data = xsoils_wide,
     vars_exhaust = c(
       "EvapBareSoil",
-      if (is_rSW2_GE_v650) {
+      if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
         paste0("TrCo", rSOILWAT2::namesVegTypes("v2"))
       } else {
         c("transpGrass", "transpShrub", "transpTree", "transpForb")
