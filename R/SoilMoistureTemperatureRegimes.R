@@ -452,10 +452,10 @@ calc_SMTRs <- function(
 
 
   #--- Deal with soil water retention curves (if available)
-  use_sw2_v6 <- getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")
+  use_sw2_v6 <- getNamespaceVersion("rSOILWAT2") >= numeric_version("6.0.0")
   has_swrc <- isTRUE(
     try(
-      rSOILWAT2::get_version(sim_in) >= as.numeric_version("6.0.0"),
+      rSOILWAT2::get_version(sim_in) >= numeric_version("6.0.0"),
       silent = TRUE
     )
   )
@@ -1391,7 +1391,9 @@ calc_SMTRs <- function(
         #       O-horizon if 50% trees or 75% shrubs or lots of litter
         crit_Oh <- c(0.5, 0.75, 0.8)
 
-        vts <- if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+        vts <- if (
+          getNamespaceVersion("rSOILWAT2") >= numeric_version("6.5.0")
+        ) {
           names(rSOILWAT2::namesVegTypes("v2"))
         } else {
           c("SW_GRASS", "SW_SHRUB", "SW_TREES", "SW_FORBS")
@@ -1410,13 +1412,17 @@ calc_SMTRs <- function(
         tmp <- sum(rSOILWAT2::swProd_Es_param_limit(sim_in) * veg_comp)
         crit_litter <- crit_Oh[[3]] * tmp
 
-        hasLotsTreeCover <- if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+        hasLotsTreeCover <- if (
+          getNamespaceVersion("rSOILWAT2") >= numeric_version("6.5.0")
+        ) {
           (veg_comp[["treeNL"]] + veg_comp[["treeBL"]]) > crit_Oh[[1]]
         } else {
           veg_comp[["Trees"]] > crit_Oh[[1]]
         }
 
-        hasLotsShrubCover <- if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+        hasLotsShrubCover <- if (
+          getNamespaceVersion("rSOILWAT2") >= numeric_version("6.5.0")
+        ) {
           veg_comp[["shrub"]] > crit_Oh[[1]]
         } else {
           veg_comp[["Shrubs"]] > crit_Oh[[1]]

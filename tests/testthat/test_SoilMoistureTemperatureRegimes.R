@@ -137,7 +137,7 @@ test_that("SMTR", {
     soil_data = xsoils_wide,
     vars_exhaust = c(
       "EvapBareSoil",
-      if (getNamespaceVersion("rSOILWAT2") >= "6.5.0") {
+      if (getNamespaceVersion("rSOILWAT2") >= numeric_version("6.5.0")) {
         paste0("TrCo", rSOILWAT2::namesVegTypes("v2"))
       } else {
         c("transpGrass", "transpShrub", "transpTree", "transpForb")
@@ -199,7 +199,7 @@ test_that("SMTR", {
 
 
   #--- Check different SWRC/PDF options (if available) ------
-  if (getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")) {
+  if (getNamespaceVersion("rSOILWAT2") >= numeric_version("6.0.0")) {
 
     #--- Set PDF from (default) Cosby1984AndOthers to Cosby1984
     # (avoid swc-sat complications for tests with unset `ptf_name`)
