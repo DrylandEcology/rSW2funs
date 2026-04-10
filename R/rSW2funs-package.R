@@ -24,6 +24,10 @@
 ##------ Package level variables
 rSW2_glovars <- new.env()
 
+if (getRversion() >= R_system_version("2.15.1")) {
+  utils::globalVariables("rSW2_glovars")
+}
+
 
 ##------ Import from other packages
 # Need methods to interact with rSOILWAT2's S4 output objects

@@ -6,11 +6,14 @@ Nl2 <- round(Nl / 2)
 Nl3 <- round(Nl / 3)
 cond1 <- matrix(FALSE, nrow = Nd, ncol = Nl)
 cond2 <- matrix(TRUE, nrow = Nd, ncol = Nl)
-cond3 <- cbind(matrix(TRUE, nrow = Nd, ncol = Nl2),
-              matrix(FALSE, nrow = Nd, ncol = Nl2))
-cond4 <- cbind(matrix(TRUE, nrow = Nd, ncol = Nl3),
-              matrix(FALSE, nrow = Nd, ncol = Nl3),
-              matrix(TRUE, nrow = Nd, ncol = Nl3))
+cond3 <- cbind(
+  matrix(TRUE, nrow = Nd, ncol = Nl2), matrix(FALSE, nrow = Nd, ncol = Nl2)
+)
+cond4 <- cbind(
+  matrix(TRUE, nrow = Nd, ncol = Nl3),
+  matrix(FALSE, nrow = Nd, ncol = Nl3),
+  matrix(TRUE, nrow = Nd, ncol = Nl3)
+)
 
 
 

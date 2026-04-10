@@ -68,9 +68,16 @@ about your publication.
 <a name="install"></a>
 ## Installation
 
-```{r}
+```
 remotes::install_github("DrylandEcology/rSW2funs")
 ```
+or
+
+```{r}
+options(pkg.git_submodules = TRUE) # or `Sys.setenv(PKG_GIT_SUBMODULES="true")`
+pak::pak("DrylandEcology/rSW2funs")
+```
+
 
 <br>
 

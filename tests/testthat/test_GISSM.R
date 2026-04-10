@@ -147,7 +147,7 @@ test_that("GISSM", {
   for (sy in 1980:1981) {
 
     sw_in5 <- rSOILWAT2::sw_exampleData
-    if (getNamespaceVersion("rSOILWAT2") < as.numeric_version("6.0.0")) {
+    if (getNamespaceVersion("rSOILWAT2") < numeric_version("6.0.0")) {
       rSOILWAT2::swWeather_FirstYearHistorical(sw_in5) <- -1
     }
     rSOILWAT2::swYears_StartYear(sw_in5) <- sy

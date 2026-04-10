@@ -6,39 +6,39 @@ calc_ref <- function(ss1s, offset, doy) {
 }
 
 test_data <- list(
- test1 = list(
-    ss1s = temp <- rep(TRUE, 10),
+  test1 = list(
+    ss1s = temp <- rep(TRUE, 10), # nolint: implicit_assignment_linter.
     ry_year_day = rep(1, 10),
     ry_useyrs = 1,
     y = 1,
-    doy = itemp <- 1,
+    doy = itemp <- 1, # nolint: implicit_assignment_linter.
     ref = calc_ref(temp, 0, itemp)
   ),
 
- test2 = list(
-    ss1s = temp <- rep(TRUE, 10),
+  test2 = list(
+    ss1s = temp <- rep(TRUE, 10), # nolint: implicit_assignment_linter.
     ry_year_day = rep(1, 10),
     ry_useyrs = 1,
     y = 1,
-    doy = itemp <- 10,
+    doy = itemp <- 10, # nolint: implicit_assignment_linter.
     ref = calc_ref(temp, 0, itemp)
   ),
 
- test3 = list(
-    ss1s = temp <- rep(TRUE, 30),
+  test3 = list(
+    ss1s = temp <- rep(TRUE, 30), # nolint: implicit_assignment_linter.
     ry_year_day = rep(1:3, each = 10),
     ry_useyrs = 1:3,
     y = 3,
-    doy = itemp <- 10,
+    doy = itemp <- 10, # nolint: implicit_assignment_linter.
     ref = calc_ref(temp, 20, itemp)
   ),
 
- test4 = list(
-    ss1s = temp <- rep(FALSE, 30),
+  test4 = list(
+    ss1s = temp <- rep(FALSE, 30), # nolint: implicit_assignment_linter.
     ry_year_day = rep(1:3, each = 10),
     ry_useyrs = 1:3,
     y = 3,
-    doy = itemp <- 10,
+    doy = itemp <- 10, # nolint: implicit_assignment_linter.
     ref = temp
   )
 )
@@ -47,7 +47,7 @@ test_data <- list(
 
 test_that("GISSM_kill_seedling", {
 
-  for (k in seq_along(test_data))
+  for (k in seq_along(test_data)) {
     expect_identical(
       GISSM_kill_seedling(
         test_data[[k]][["ss1s"]],
@@ -59,6 +59,7 @@ test_that("GISSM_kill_seedling", {
       test_data[[k]][["ref"]],
       info = paste("Test dataset =", shQuote(names(test_data)[k]))
     )
+  }
 
 
   #--- Errors

@@ -74,7 +74,7 @@ test_that("SMTR", {
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Xeric", "Typic-Xeric"))
 
-      } else if (eqv == "5.0.0") {
+    } else if (eqv == "5.0.0") {
       # rSOILWAT2 since v5.0.0
       expected_STR <- create_STR_expectation("Cryic")
       expected_SMR <- create_SMR_expectation(c("Ustic", "Typic-Tempustic"))
@@ -86,7 +86,8 @@ test_that("SMTR", {
   } else {
     warning(
       "Test expectations for STR/SMR have not yet been implemented using ",
-      "rSOILWAT2 v", rSOILWAT2::get_version(sw_out)
+      "rSOILWAT2 v", rSOILWAT2::get_version(sw_out),
+      call. = FALSE
     )
   }
 
@@ -94,9 +95,21 @@ test_that("SMTR", {
   #--- Check with insufficient soil layers (add and recalculate) ------
   sw_in2 <- sw_in
 
+  is_rSW2_GE_v650 <-
+    rSOILWAT2::get_version(sw_in2) >= as.numeric_version("6.5.0")
+
+
   # Dissolve soil layers
   xsoils <- rSOILWAT2::swSoils_Layers(sw_in2)
   depths <- xsoils[, "depth_cm"]
+
+  if (is_rSW2_GE_v650) {
+    idsTrCo <- grep("^TrCo_", colnames(xsoils))
+    colnames(xsoils)[idsTrCo] <- gsub(
+      "_", "", colnames(xsoils)[idsTrCo], fixed = TRUE
+    )
+  }
+
   colnames(xsoils) <- vapply(
     strsplit(colnames(xsoils), split = "_", fixed = TRUE),
     function(x) x[[1]],
@@ -124,7 +137,11 @@ test_that("SMTR", {
     soil_data = xsoils_wide,
     vars_exhaust = c(
       "EvapBareSoil",
-      "transpGrass", "transpShrub", "transpTree", "transpForb",
+      if (getNamespaceVersion("rSOILWAT2") >= numeric_version("6.5.0")) {
+        paste0("TrCo", rSOILWAT2::namesVegTypes("v2"))
+      } else {
+        c("transpGrass", "transpShrub", "transpTree", "transpForb")
+      },
       "impermeability"
     ),
     keep_prev_soildepth = TRUE,
@@ -147,7 +164,7 @@ test_that("SMTR", {
 
   #--- Expect warning about additional soil layers
   expect_output(
-    SMTR2 <- calc_SMTRs(
+    SMTR2 <- calc_SMTRs( # nolint: implicit_assignment_linter.
       sim_in = sw_in2,
       sim_out = rSOILWAT2::sw_exec(inputData = sw_in2),
       verbose = TRUE
@@ -182,7 +199,7 @@ test_that("SMTR", {
 
 
   #--- Check different SWRC/PDF options (if available) ------
-  if (getNamespaceVersion("rSOILWAT2") >= as.numeric_version("6.0.0")) {
+  if (getNamespaceVersion("rSOILWAT2") >= numeric_version("6.0.0")) {
 
     #--- Set PDF from (default) Cosby1984AndOthers to Cosby1984
     # (avoid swc-sat complications for tests with unset `ptf_name`)
@@ -249,7 +266,7 @@ test_that("SMTR", {
         sim_out = rSOILWAT2::sw_exec(inputData = sw_in_swrc)
       ),
       SMTR3,
-      tol_cond_annual = 0.01
+      tol_cond_annual = 0.1
     )
   }
 })

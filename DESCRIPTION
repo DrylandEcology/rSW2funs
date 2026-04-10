@@ -1,6 +1,6 @@
 Package: rSW2funs
 Title: Functions for Derived Variables from SOILWAT2 Simulations
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: c(
   person(
     "Daniel", "Schlaepfer",
@@ -22,14 +22,14 @@ Suggests:
     bookdown,
     covr,
     knitr,
-    lintr (>= 3.0.0),
+    lintr (>= 3.3.0),
     rmarkdown,
     spelling (>= 2.1.0),
     testthat (>= 3.0.0)
 Remotes:
     github::DrylandEcology/rSW2utils,
     github::DrylandEcology/rSW2data,
-    github::DrylandEcology/rSOILWAT2
+    git::https://github.com/DrylandEcology/rSOILWAT2
 LinkingTo:
     Rcpp
 NeedsCompilation: yes
@@ -39,5 +39,5 @@ BugReports: https://github.com/DrylandEcology/rSW2funs/issues
 Config/testthat/edition: 3
 Encoding: UTF-8
 Language: en-US
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.3
 VignetteBuilder: knitr

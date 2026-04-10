@@ -20,11 +20,13 @@ calc_SMTRs(
 )
 }
 \arguments{
-\item{sim_in}{An object of class \code{\linkS4class{swInputData}}. The
-\pkg{rSOILWAT2} simulation input.}
+\item{sim_in}{An object of class
+\code{\link[rSOILWAT2:swInputData-class]{swInputData}}.
+The \pkg{rSOILWAT2} simulation input.}
 
-\item{sim_out}{An object of class \code{\linkS4class{swOutput}}. The
-\pkg{rSOILWAT2} simulation output. If \code{NULL} then \code{sim_agg}
+\item{sim_out}{An object of class
+\code{\link[rSOILWAT2:swOutput-class]{swOutput}}.
+The \pkg{rSOILWAT2} simulation output. If \code{NULL} then \code{sim_agg}
 must be provided instead.}
 
 \item{sim_agg}{A named list. The prepared \pkg{rSOILWAT2} simulation output.
@@ -105,7 +107,7 @@ A list with the following elements: \itemize{
 Calculations are based on SSS (2014, 2015) and explained in detail in the
 \code{vignette(
   topic = "SoilMoistureRegimes_SoilTemperatureRegimes",
-  package = "rSOILWAT2"
+  package = "rSW2funs"
 )}.
 }
 \section{Details}{
@@ -124,7 +126,7 @@ Calculations are based on SSS (2014, 2015) and explained in detail in the
 \examples{
 sw_in <- rSOILWAT2::sw_exampleData
 sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
-SMTR <- calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
+SMTR <- rSW2funs::calc_SMTRs(sim_in = sw_in, sim_out = sw_out)
 
 }
 \references{
