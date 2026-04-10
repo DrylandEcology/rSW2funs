@@ -35,7 +35,10 @@ calc_DurationFavorableConds <- function(
   if (consequences_unfavorable == 0) {
     # if conditions become unfavorable, then restart the count afterwards
     tmp_rle <- rle(conditions)
-    if (sum(!tmp_rle[["values"]]) > 0) {
+    if (all(tmp_rle[["values"]])) {
+      # every day is favorable
+      tmp_rle[["values"]] <- length(conditions) + 1
+    } else {
       # add starts for odd- and even-lengthed rle
       tmp <- 1 + c(0, cumsum(tmp_rle[["lengths"]]))
       temp.unfavorable_startdoy <- c(
@@ -54,9 +57,6 @@ calc_DurationFavorableConds <- function(
       ids <- seq_along(tmp_rle[["lengths"]])
       tmp_rle[["values"]] <- tmp_rle[["values"]][ids]
 
-    } else {
-      # every day is favorable
-      tmp_rle[["values"]] <- length(conditions) + 1
     }
 
     # difference to next following start of a period of unfavorable conditions
@@ -237,7 +237,10 @@ do.vector <- function(kill.vector, max_time_to_kill) {
   doys[!kill.vector] <- NA  #calculate only for kill days
   tmp_rle <- rle(kill.vector)
 
-  if (sum(!tmp_rle[["values"]]) > 0) {
+  if (all(tmp_rle[["values"]])) {
+    # every day is kill free
+    tmp_rle[["values"]] <- length(kill.vector) + 1
+  } else {
     tmp <- (1 + c(0, cumsum(tmp_rle[["lengths"]])))
     temp.startdoy <- tmp[!tmp_rle[["values"]]]
     tmp_rle[["values"]] <- if (tmp_rle[["values"]][[1]]) {
@@ -247,9 +250,6 @@ do.vector <- function(kill.vector, max_time_to_kill) {
     }
     tmp_rle[["values"]] <- tmp_rle[["values"]][seq_along(tmp_rle[["lengths"]])]
 
-  } else {
-    # every day is kill free
-    tmp_rle[["values"]] <- length(kill.vector) + 1
   }
   kill.durations <- inverse.rle(tmp_rle) - doys
   mortality <- rep(FALSE, times = length(kill.vector))
@@ -953,11 +953,7 @@ calc_GISSM <- function(
   dyf_airTmax <- sim_vals[["air_Tmax_C"]][st_RY[["index.usedy"]]]
 
 
-  has_good_soil_temperature <- if (!is.null(has_soil_temperature)) {
-    has_soil_temperature
-  } else {
-    TRUE
-  }
+  has_good_soil_temperature <- has_soil_temperature %||% TRUE
 
   has_good_soil_temperature <- has_good_soil_temperature &&
     !inherits(sim_vals[["shallowsoil_Tmean_C"]], "try-error") &&
