@@ -1,4 +1,6 @@
-# rSW2funs v0.2.1-9000
+# rSW2funs v0.2.1
+* Compatibility updates for `rSOILWAT2` v6.5.0.
+* Internal updates for package infrastructure and testing.
 
 
 # rSW2funs v0.2.0
