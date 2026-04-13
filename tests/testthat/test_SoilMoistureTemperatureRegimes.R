@@ -293,6 +293,6 @@ test_that("SMTR", {
       all(colnames(SMTRtoc[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
     )
 
-    expect_equal(SMTRtoc, SMTR1)
+    expect_identical(SMTRtoc, SMTR1)
   }
 })

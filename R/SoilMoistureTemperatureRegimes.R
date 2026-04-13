@@ -427,11 +427,7 @@ calc_SMTRs <- function(
   # Pull all soil data together
   soildat <- cbind(
     soildat[, req_soilvars, drop = FALSE],
-    soil_TOC = if (is.null(soil_TOC)) {
-      rep(0, n_soillayers)
-    } else {
-      soil_TOC
-    }
+    soil_TOC = soil_TOC %||% rep(0, n_soillayers)
   )
 
   if (verbose) {
