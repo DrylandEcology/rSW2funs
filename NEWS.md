@@ -1,4 +1,5 @@
 # rSW2funs v0.2.2-9000
+* Bugfix for `calc_SMTRs()` if soil organic carbon is an input.
 
 
 # rSW2funs v0.2.1

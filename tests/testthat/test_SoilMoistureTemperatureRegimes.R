@@ -269,4 +269,30 @@ test_that("SMTR", {
       tol_cond_annual = 0.1
     )
   }
+
+
+  #--- Check with soils that contain organic matter ------
+  if (getNamespaceVersion("rSOILWAT2") >= numeric_version("6.3.0")) {
+    sw_in <- rSOILWAT2::sw_exampleData
+    sw_out <- rSOILWAT2::sw_exec(inputData = sw_in)
+
+    nSoils <- nrow(rSOILWAT2::swSoils_Layers(sw_in))
+    toc <- 580 * rep(0.03, nSoils) # [g g-1] -> [g kg-1]
+
+    SMTRtoc <- calc_SMTRs(
+      sim_in = sw_in,
+      sim_out = sw_out,
+      soil_TOC = toc
+    )
+
+    expect_true(SMTRtoc[["regimes_done"]])
+
+    expect_true(all(colnames(SMTRtoc[["STR"]]) %in% STR_names()))
+
+    expect_true(
+      all(colnames(SMTRtoc[["SMR"]]) %in% c(SMR_names(), SMRq_names()))
+    )
+
+    expect_equal(SMTRtoc, SMTR1)
+  }
 })
