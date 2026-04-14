@@ -427,9 +427,7 @@ calc_SMTRs <- function(
   # Pull all soil data together
   soildat <- cbind(
     soildat[, req_soilvars, drop = FALSE],
-    soil_TOC = if (is.null(soil_TOC)) {
-      rep(0, n_soillayers)
-    }
+    soil_TOC = soil_TOC %||% rep(0, n_soillayers)
   )
 
   if (verbose) {
@@ -1375,7 +1373,7 @@ calc_SMTRs <- function(
         #}
 
         # Organic versus mineral soil material per layer
-        # units(TOC) = g C / kg soil
+        # input units(TOC) = g C / kg soil convert to kg C / kg soil
         organic_carbon_wfraction <- soildat[, "soil_TOC"] / 1000
 
         is_mineral_layer <-

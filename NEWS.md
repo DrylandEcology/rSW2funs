@@ -1,3 +1,7 @@
+# rSW2funs v0.2.2
+* Bugfix for `calc_SMTRs()` if soil organic carbon is an input.
+
+
 # rSW2funs v0.2.1
 * Compatibility updates for `rSOILWAT2` v6.5.0.
 * Internal updates for package infrastructure and testing.
